@@ -2,6 +2,8 @@
 
 This repository is the source of truth for personal C#/.NET coding-agent configuration on this machine. It keeps always-on guidance small, delegates standard framework knowledge to the official [`dotnet/skills`](https://github.com/dotnet/skills) project, and uses MCP only for external documentation access.
 
+To integrate another coding harness or tool, give its agent [`INSTALL_NEW_HARNESS.md`](INSTALL_NEW_HARNESS.md). The file is a complete, copy/paste-ready installation contract covering audit, backup, adapters, skills, official plugins, MCP, automation, and verification. Root [`AGENTS.md`](AGENTS.md) makes that contract discoverable to agents working directly in this repository.
+
 ## Architecture
 
 - `instructions/global.md` is the only manually edited global .NET instruction set.
@@ -45,7 +47,8 @@ Do not add generic C# style advice, copied official .NET documentation, duplicat
 - `scripts/doctor.sh [development-root]` prints pass/warn/fail status for adapters, skills, plugins, SDKs, MCP, broken links, and remaining repository clutter.
 - `scripts/clean-repos.sh --root PATH` is dry-run by default. Use `--apply` only after reviewing its output. A reviewed explicit manifest can be supplied with `--manifest FILE`; every applied path is moved into a timestamped backup rather than deleted.
 
+For a new harness, start with the handoff prompt at the end of `INSTALL_NEW_HARNESS.md`. The integrating agent should extend these scripts rather than create standalone setup instructions elsewhere.
+
 Backups live under `backups/YYYY-MM-DD-HHMMSS/` or `backups/clean-*`. They mirror the affected paths and can be copied back manually. The migration report names the exact backup used.
 
 Local home-directory configuration and symlinks are not available to hosted/cloud agents. Those environments may require repository-level `AGENTS.md`, organization policy, marketplace installation, or account-level plugin configuration.
-
