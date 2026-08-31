@@ -2,10 +2,12 @@
 set -euo pipefail
 
 USER_HOME="${HOME:?HOME is required}"
-ROOT_DIR="${USER_HOME}/.agentic-dotnet"
+SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
+ROOT_DIR="${AGENTIC_DOTNET_HOME:-$(cd "${SCRIPT_DIR}/.." && pwd -P)}"
 GLOBAL_INSTRUCTIONS="${ROOT_DIR}/instructions/global.md"
 BACKUP_DIR="${ROOT_DIR}/backups/sync-$(date '+%Y-%m-%d-%H%M%S')"
 WARNINGS=0
+REPLACE_EXISTING="${AGENTIC_DOTNET_REPLACE_EXISTING:-0}"
 
 note() { printf '[sync] %s\n' "$*"; }
 warn() { printf '[sync] WARN: %s\n' "$*" >&2; WARNINGS=$((WARNINGS + 1)); }
@@ -29,6 +31,8 @@ ensure_symlink() {
     backup_path "$link"
     if [ -L "$link" ]; then
       rm "$link"
+    elif [ "$REPLACE_EXISTING" = "1" ]; then
+      rm -rf "$link"
     else
       warn "left unrelated regular path in place: $link"
       return 0
@@ -47,8 +51,12 @@ ensure_managed_file() {
   fi
   if [ -e "$destination" ] && ! grep -Fq "$marker" "$destination" 2>/dev/null; then
     backup_path "$destination"
-    warn "left unrelated file in place: $destination"
-    return 0
+    if [ "$REPLACE_EXISTING" = "1" ]; then
+      rm -rf "$destination"
+    else
+      warn "left unrelated file in place: $destination"
+      return 0
+    fi
   fi
   local temporary
   temporary=$(mktemp "${destination}.tmp.XXXXXX")
@@ -61,10 +69,39 @@ ensure_managed_file() {
 mkdir -p "${ROOT_DIR}/skills" "${USER_HOME}/.agents/skills" "${USER_HOME}/.claude/skills" "${USER_HOME}/.cursor/plugins/local" "${USER_HOME}/.copilot"
 
 ensure_symlink "$GLOBAL_INSTRUCTIONS" "${USER_HOME}/.codex/AGENTS.md"
-ensure_managed_file "${ROOT_DIR}/adapters/claude/CLAUDE.md" "${USER_HOME}/.claude/CLAUDE.md" '.agentic-dotnet'
+claude_adapter=$(mktemp "${TMPDIR:-/tmp}/agentic-dotnet-claude.XXXXXX")
+printf '<!-- Managed by .agentic-dotnet; edit %s instead. -->\n@%s\n' "$GLOBAL_INSTRUCTIONS" "$GLOBAL_INSTRUCTIONS" > "$claude_adapter"
+ensure_managed_file "$claude_adapter" "${USER_HOME}/.claude/CLAUDE.md" '.agentic-dotnet'
+rm -f "$claude_adapter"
 ensure_symlink "$GLOBAL_INSTRUCTIONS" "${USER_HOME}/.copilot/copilot-instructions.md"
 ensure_symlink "${ROOT_DIR}/adapters/copilot/mcp-config.json" "${USER_HOME}/.copilot/mcp-config.json"
 ensure_symlink "${ROOT_DIR}/adapters/cursor" "${USER_HOME}/.cursor/plugins/local/agentic-dotnet"
+
+if [ -d "${USER_HOME}/.config/kilo" ]; then
+  ensure_symlink "$GLOBAL_INSTRUCTIONS" "${USER_HOME}/.config/kilo/AGENTS.md"
+
+  kilo_plugins=()
+  while IFS= read -r plugin; do
+    kilo_plugins+=("$plugin")
+  done < <(awk '
+    /^(core|standard|optional):/ { active=1; next }
+    /^[A-Za-z_][A-Za-z0-9_-]*:/ { active=0 }
+    active && /^[[:space:]]*-[[:space:]]+/ { sub(/^[[:space:]]*-[[:space:]]+/, ""); print }
+  ' "${ROOT_DIR}/config/plugins.yaml")
+  skills_paths=()
+  for plugin in "${kilo_plugins[@]}"; do
+    skills_paths+=("\"${USER_HOME}/.cache/agentic-dotnet/dotnet-skills/plugins/${plugin}/skills\"")
+  done
+  managed_prefix="${USER_HOME}/.cache/agentic-dotnet/dotnet-skills/plugins/"
+  patch=$(printf '{"mcp":{"microsoft-learn":{"type":"remote","url":"https://learn.microsoft.com/api/mcp","enabled":true}},"skills":{"paths":[%s],"managedPrefix":"%s"}}' "$(IFS=,; printf '%s' "${skills_paths[*]}")" "$managed_prefix")
+  if command -v node >/dev/null 2>&1; then
+    if ! printf '%s' "$patch" | node "${ROOT_DIR}/scripts/kilo-config-merge.js" "${USER_HOME}/.config/kilo/kilo.jsonc" "$BACKUP_DIR"; then
+      warn 'Kilo config merge failed'
+    fi
+  else
+    warn 'node is required to merge Kilo config but was not found'
+  fi
+fi
 
 temporary_rule=$(mktemp "${ROOT_DIR}/adapters/cursor/rules/global-dotnet.mdc.tmp.XXXXXX")
 {
@@ -93,10 +130,9 @@ for skills_root in "${USER_HOME}/.agents/skills" "${USER_HOME}/.claude/skills"; 
   done
 done
 
-if [ "$WARNINGS" -gt 0 ]; then
+if [ -d "$BACKUP_DIR" ] && find "$BACKUP_DIR" -mindepth 1 -print -quit | grep -q .; then
   note "completed with $WARNINGS warning(s); backup: $BACKUP_DIR"
 else
   rmdir "$BACKUP_DIR" 2>/dev/null || true
-  note 'completed'
+  note "completed with $WARNINGS warning(s)"
 fi
-

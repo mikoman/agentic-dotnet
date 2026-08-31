@@ -1,7 +1,20 @@
+# Local migration state and generated releases
 backups/*
-reports/inventory-*.json
-reports/final-report.md
-reports/doctor-output.txt
-reports/environment.json
-reports/cleanup-plan.txt
-reports/git-status-*.txt
+!backups/.gitkeep
+reports/*
+!reports/.gitkeep
+dist/
+
+# Operating-system and editor state
+.DS_Store
+Thumbs.db
+Desktop.ini
+.idea/
+.vscode/
+
+# Local diagnostics and scratch data
+*.log
+*.tmp
+*.bak
+*.local
+.cache/

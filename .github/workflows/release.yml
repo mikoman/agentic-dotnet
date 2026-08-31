@@ -1,0 +1,70 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  validate-posix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: bash -n bootstrap.sh scripts/*.sh
+      - run: ./bootstrap.sh --dry-run --target "$RUNNER_TEMP/.agentic-dotnet"
+
+  validate-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Parse and exercise PowerShell
+        shell: pwsh
+        run: |
+          $failed = $false
+          Get-ChildItem -Filter *.ps1 -Recurse | ForEach-Object {
+            $tokens = $null
+            $errors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile(
+              $_.FullName,
+              [ref]$tokens,
+              [ref]$errors
+            ) > $null
+            if ($errors.Count -gt 0) {
+              $failed = $true
+              $errors | ForEach-Object { Write-Error $_ }
+            }
+          }
+          if ($failed) { exit 1 }
+          .\bootstrap.ps1 -DryRun -TargetRoot (Join-Path $env:RUNNER_TEMP '.agentic-dotnet')
+
+  publish:
+    needs: [validate-posix, validate-windows]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate tag
+        shell: bash
+        run: |
+          expected="v$(tr -d '[:space:]' < VERSION)"
+          if [ "$GITHUB_REF_NAME" != "$expected" ]; then
+            printf 'tag %s does not match VERSION (%s)\n' "$GITHUB_REF_NAME" "$expected" >&2
+            exit 1
+          fi
+      - name: Build and verify release archives
+        run: |
+          ./scripts/package.sh
+          cd dist
+          sha256sum -c SHA256SUMS
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            dist/agentic-dotnet-*.tar.gz \
+            dist/agentic-dotnet-*.zip \
+            dist/SHA256SUMS \
+            --title "agentic-dotnet $GITHUB_REF_NAME" \
+            --generate-notes

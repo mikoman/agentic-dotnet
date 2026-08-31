@@ -2,8 +2,9 @@
 set -euo pipefail
 
 USER_HOME="${HOME:?HOME is required}"
-ROOT_DIR="${USER_HOME}/.agentic-dotnet"
-DEV_ROOT="/Volumes/ExtSSD/Projects/Work"
+SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
+ROOT_DIR="${AGENTIC_DOTNET_HOME:-$(cd "${SCRIPT_DIR}/.." && pwd -P)}"
+DEV_ROOT="${AGENTIC_DOTNET_DEV_ROOT:-$PWD}"
 MODE="dry-run"
 MANIFEST=""
 BACKUP_DIR=""

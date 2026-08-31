@@ -1,0 +1,79 @@
+name: Validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  posix:
+    name: POSIX (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate shell scripts
+        run: |
+          bash -n bootstrap.sh scripts/*.sh
+          git diff --check
+      - name: Exercise dry-run bootstrap
+        run: ./bootstrap.sh --dry-run --target "$RUNNER_TEMP/.agentic-dotnet"
+      - name: Build packages
+        run: ./scripts/package.sh
+      - name: Verify checksums
+        shell: bash
+        run: |
+          cd dist
+          if command -v sha256sum >/dev/null 2>&1; then
+            sha256sum -c SHA256SUMS
+          else
+            shasum -a 256 -c SHA256SUMS
+          fi
+
+  windows:
+    name: Windows
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Parse PowerShell
+        shell: pwsh
+        run: |
+          $failed = $false
+          Get-ChildItem -Filter *.ps1 -Recurse | ForEach-Object {
+            $tokens = $null
+            $errors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile(
+              $_.FullName,
+              [ref]$tokens,
+              [ref]$errors
+            ) > $null
+            if ($errors.Count -gt 0) {
+              $failed = $true
+              $errors | ForEach-Object { Write-Error $_ }
+            }
+          }
+          if ($failed) { exit 1 }
+      - name: Exercise dry-run bootstrap
+        shell: pwsh
+        run: .\bootstrap.ps1 -DryRun -TargetRoot (Join-Path $env:RUNNER_TEMP '.agentic-dotnet')
+      - name: Build Windows package
+        shell: pwsh
+        run: .\scripts\package.ps1
+      - name: Verify Windows checksum
+        shell: pwsh
+        run: |
+          $line = (Get-Content .\dist\SHA256SUMS -Raw).Trim()
+          $expected, $name = $line -split '\s+', 2
+          $artifactName = $name.Trim()
+          $artifact = Join-Path .\dist $artifactName
+          $actual = (Get-FileHash $artifact -Algorithm SHA256).Hash
+          if ($actual.ToLowerInvariant() -ne $expected.ToLowerInvariant()) {
+            throw 'checksum mismatch'
+          }

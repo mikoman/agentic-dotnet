@@ -9,5 +9,5 @@ This repository is the source of truth for local coding-agent configuration.
 - Keep personal skills physically under `skills/`; do not copy official .NET skills here.
 - Preserve unrelated harness configuration and back up replaced paths under `backups/`.
 - Never add credentials or secret values to configuration, reports, adapters, or commits.
-- After changes, run `scripts/sync.sh`, `scripts/install.sh`, and `scripts/doctor.sh`.
+- After changes, run the POSIX `scripts/sync.sh`, `scripts/install.sh`, and `scripts/doctor.sh`; when changing portable behavior, also validate the equivalent PowerShell scripts.
 - When adding a harness or tool, follow `INSTALL_NEW_HARNESS.md` completely.

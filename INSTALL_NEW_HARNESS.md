@@ -99,6 +99,7 @@ Update the central tooling so the integration remains maintainable:
 - `scripts/install.sh`: detect the harness and install/configure supported components idempotently.
 - `scripts/sync.sh`: repair instruction adapters and skill links.
 - `scripts/doctor.sh`: verify the adapter, links, official plugins where status is exposed, MCP, and broken links.
+- `scripts/install.ps1`, `scripts/sync.ps1`, and `scripts/doctor.ps1`: keep equivalent Windows behavior when the harness supports Windows.
 - `README.md`: document how the harness consumes the central sources and any hosted/cloud limitation.
 - `config/plugins.yaml`: record the harness implementation mechanism if appropriate.
 
@@ -114,6 +115,14 @@ Run:
 ~/.agentic-dotnet/scripts/doctor.sh
 ```
 
+On Windows, run the equivalent PowerShell scripts or rerun `bootstrap.ps1`:
+
+```powershell
+& "$HOME\.agentic-dotnet\scripts\sync.ps1"
+& "$HOME\.agentic-dotnet\scripts\install.ps1"
+& "$HOME\.agentic-dotnet\scripts\doctor.ps1"
+```
+
 Also verify:
 
 - every new symlink resolves;
@@ -123,6 +132,7 @@ Also verify:
 - no secret appears in Git changes or reports;
 - `git -C ~/.agentic-dotnet diff --check` passes;
 - `git -C ~/.agentic-dotnet status --short` contains only the intended central changes.
+- Windows machines without symbolic-link permission use managed generated files or directory junctions and still pass the platform doctor.
 
 Do not commit application repositories. A commit inside `~/.agentic-dotnet` is allowed after verification.
 

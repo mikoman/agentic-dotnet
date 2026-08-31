@@ -29,5 +29,5 @@ harnesses:
   codex: plugin-marketplace
   claude: plugin-marketplace
   cursor: local-plugin-symlinks
-  copilot: unavailable-until-cli-installed
-
+  copilot: instructions-skills-and-mcp
+  kilo: official-skills-via-skills.paths

@@ -1,54 +1,148 @@
-# Agentic .NET configuration
+# agentic-dotnet
 
-This repository is the source of truth for personal C#/.NET coding-agent configuration on this machine. It keeps always-on guidance small, delegates standard framework knowledge to the official [`dotnet/skills`](https://github.com/dotnet/skills) project, and uses MCP only for external documentation access.
+[![Validate](https://github.com/mikoman/agentic-dotnet/actions/workflows/validate.yml/badge.svg)](https://github.com/mikoman/agentic-dotnet/actions/workflows/validate.yml)
 
-To integrate another coding harness or tool, give its agent [`INSTALL_NEW_HARNESS.md`](INSTALL_NEW_HARNESS.md). The file is a complete, copy/paste-ready installation contract covering audit, backup, adapters, skills, official plugins, MCP, automation, and verification. Root [`AGENTS.md`](AGENTS.md) makes that contract discoverable to agents working directly in this repository.
+A portable, centralized configuration for .NET coding agents. It gives Codex, Claude Code, GitHub Copilot CLI, Cursor, and Kilo one concise instruction source, one personal Agent Skills tree, official .NET skills where supported, and a minimal MCP policy.
 
-## Architecture
+The package configures installed tools. It does not install agent CLIs, IDEs, .NET, Git, Node, or credentials.
 
-- `instructions/global.md` is the only manually edited global .NET instruction set.
-- `skills/` is the only physical home for personal reusable Agent Skills. It intentionally starts empty because the audit found no custom workflow that justified duplicating official or vendor knowledge.
-- `config/plugins.yaml` declares which official .NET plugins should exist.
-- `config/mcp.yaml` describes desired MCP services without credentials.
-- `adapters/` contains generated or thin harness-specific representations.
-- `scripts/` installs, synchronizes, diagnoses, and conservatively audits repositories.
-- `reports/` contains inventories and migration reports. `backups/` contains timestamped, recoverable copies of changed material.
+## Quick start
 
-## Harness consumption
+### macOS and Linux
 
-Codex reads `~/.codex/AGENTS.md`, which is a symlink to `instructions/global.md`. Personal skills are discovered from `~/.agents/skills`; Codex follows symlinked skill directories. Official .NET plugins are installed from the `dotnet/skills` Codex marketplace.
+Clone the repository and run:
 
-Claude Code reads `~/.claude/CLAUDE.md`, a one-line import of the canonical global file. Personal skill directories under `~/.claude/skills` link back to `skills/`. Official .NET plugins are installed from the `dotnet-agent-skills` marketplace.
+```sh
+git clone https://github.com/mikoman/agentic-dotnet.git
+cd agentic-dotnet
+./bootstrap.sh
+```
 
-Cursor loads the local `agentic-dotnet` plugin linked from `~/.cursor/plugins/local/agentic-dotnet`. `sync.sh` regenerates its always-on `.mdc` rule from the canonical Markdown. Desired official .NET plugins are linked from a shallow official checkout in `~/.cache/agentic-dotnet/dotnet-skills`; they are not copied into this repository.
+Or download the latest `.tar.gz` from [GitHub Releases](https://github.com/mikoman/agentic-dotnet/releases), verify it against `SHA256SUMS`, extract it, and run `./bootstrap.sh`.
 
-Copilot CLI uses `~/.copilot/copilot-instructions.md`, symlinked to the canonical instructions, and discovers personal skills from `~/.agents/skills`. Its Microsoft Learn MCP file is also a symlink to the central adapter. The CLI was not installed during the initial migration, so official plugin installation is deferred until it exists.
+### Windows
 
-## MCP policy
+Clone or extract the release zip, open PowerShell in the repository directory, and run:
 
-Microsoft Learn is the only newly configured global MCP service. It provides current Microsoft documentation through `https://learn.microsoft.com/api/mcp` and does not require credentials. Existing Claude account connectors were preserved. GitHub is not duplicated globally: Copilot CLI supplies GitHub capabilities natively, and no other existing reliable GitHub MCP configuration was found.
+```powershell
+powershell -ExecutionPolicy Bypass -File .\bootstrap.ps1
+```
 
-Filesystem, shell, generic search, database, and production-infrastructure MCP servers are not global defaults. Project-sensitive MCP remains project-specific. Playwright MCP is not installed globally; prefer Playwright CLI and Agent Skills when a repository actually needs browser automation.
+PowerShell 7 is recommended. The scripts retain Windows PowerShell 5.1-compatible syntax.
 
-## Add a personal skill
+### Existing harness configuration
 
-Create `skills/<skill-name>/SKILL.md` with a lowercase hyphenated name and a precise description. The skill must define its purpose, when to use it, when not to use it, workflow, and success criteria. Keep framework reference material out of personal skills when an official maintained skill exists. Run `scripts/sync.sh` to create or repair the `~/.agents/skills` and `~/.claude/skills` links.
+Existing unrelated instruction or MCP files are backed up and preserved by default. If you have reviewed the warnings and want this package to take ownership:
 
-## Add repository-specific instructions
+```sh
+./bootstrap.sh --replace-existing
+```
 
-Add a root `AGENTS.md` only when the repository has durable facts that are not obvious from source and deterministic configuration: special build commands, generated-code boundaries, database-first behavior, domain invariants, or unusual deployment constraints. If Claude needs an adapter, use a one-line root `CLAUDE.md` containing `@AGENTS.md`.
+```powershell
+.\bootstrap.ps1 -ReplaceExisting
+```
 
-Do not add generic C# style advice, copied official .NET documentation, duplicated skill trees, global MCP servers, or deterministic settings already represented by `.editorconfig`, analyzers, MSBuild, or project files.
+Rerunning the bootstrap updates package-owned files and repairs adapters idempotently.
 
-## Operations
+## What it configures
 
-- `scripts/install.sh` detects installed harnesses, synchronizes adapters, installs desired official plugins where supported, and configures Microsoft Learn MCP.
-- `scripts/sync.sh` repairs instruction adapters, skill links, and the generated Cursor rule without overwriting unrelated regular files.
-- `scripts/doctor.sh [development-root]` prints pass/warn/fail status for adapters, skills, plugins, SDKs, MCP, broken links, and remaining repository clutter.
-- `scripts/clean-repos.sh --root PATH` is dry-run by default. Use `--apply` only after reviewing its output. A reviewed explicit manifest can be supplied with `--manifest FILE`; every applied path is moved into a timestamped backup rather than deleted.
+- Codex: global `AGENTS.md`, shared personal skills, official `dotnet/skills` marketplace plugins, and Microsoft Learn MCP.
+- Claude Code: a generated import of the canonical instructions, linked personal skills, official marketplace plugins, and Microsoft Learn MCP.
+- GitHub Copilot CLI: global instructions, shared personal skills, and centrally managed Microsoft Learn MCP configuration. The installer does not invent an unsupported plugin marketplace command.
+- Cursor: a generated local plugin and links to a shallow checkout of the official .NET plugins.
+- Kilo: global instructions, shared personal skills, Microsoft Learn MCP, and official skill paths from the shallow cache.
 
-For a new harness, start with the handoff prompt at the end of `INSTALL_NEW_HARNESS.md`. The integrating agent should extend these scripts rather than create standalone setup instructions elsewhere.
+Missing harnesses produce warnings rather than installation failures. Install the desired harness separately and rerun the bootstrap.
 
-Backups live under `backups/YYYY-MM-DD-HHMMSS/` or `backups/clean-*`. They mirror the affected paths and can be copied back manually. The migration report names the exact backup used.
+## Design principles
 
-Local home-directory configuration and symlinks are not available to hosted/cloud agents. Those environments may require repository-level `AGENTS.md`, organization policy, marketplace installation, or account-level plugin configuration.
+1. Deterministic repository configuration remains authoritative.
+2. Durable repository-specific facts belong in a concise root `AGENTS.md`.
+3. Standard .NET knowledge comes from the official [`dotnet/skills`](https://github.com/dotnet/skills) project.
+4. Personal Agent Skills remain small and physically live in one tree.
+5. Global instructions have one manually edited source.
+6. MCP is used only for external capabilities that need it.
+7. Harness-specific files are symlinks, imports, junctions, or generated adapters.
+
+## Repository layout
+
+```text
+.
+├── instructions/global.md       # Canonical always-on .NET/C# behavior
+├── skills/                      # Canonical personal Agent Skills
+├── config/
+│   ├── plugins.yaml             # Desired official .NET plugins
+│   └── mcp.yaml                 # Credential-free MCP policy
+├── adapters/                    # Thin/generated harness representations
+├── scripts/
+│   ├── install.sh / install.ps1
+│   ├── sync.sh / sync.ps1
+│   ├── doctor.sh / doctor.ps1
+│   └── package.sh / package.ps1
+├── bootstrap.sh                 # macOS/Linux entry point
+├── bootstrap.ps1               # Windows entry point
+└── PORTABLE_INSTALL.md
+```
+
+The default installation root is `~/.agentic-dotnet`. Set `AGENTIC_DOTNET_HOME` or pass `--target`/`-TargetRoot` to use another path.
+
+## Safety
+
+- Package updates back up changed central files.
+- Sync backs up harness files before replacement.
+- Existing unrelated harness files are preserved unless replacement is explicitly requested.
+- Local backups, reports, build archives, credentials, and machine state are excluded from Git and release packages.
+- No script modifies application source repositories.
+- No credentials are stored in declarative MCP configuration.
+
+See [PORTABLE_INSTALL.md](PORTABLE_INSTALL.md) for installation options, recovery paths, and platform behavior.
+
+## Personal skills
+
+Create `skills/<skill-name>/SKILL.md`, then run the platform sync script:
+
+```sh
+./scripts/sync.sh
+```
+
+```powershell
+.\scripts\sync.ps1
+```
+
+The sync exposes the same physical skill to compatible harnesses. Do not copy framework reference material that is already maintained by official .NET skills.
+
+## Repository-specific instructions
+
+Add a project `AGENTS.md` only for durable facts that are not clear from source or deterministic configuration, such as unusual build commands, generated-code boundaries, database-first behavior, domain invariants, or deployment constraints.
+
+Do not add generic C# style advice already represented by `.editorconfig`, analyzers, compiler settings, MSBuild, or project files.
+
+## Validation
+
+Run:
+
+```sh
+./scripts/doctor.sh /path/to/development/root
+```
+
+Or on Windows:
+
+```powershell
+.\scripts\doctor.ps1
+```
+
+GitHub Actions validates shell syntax, PowerShell syntax, bootstrap dry runs, packaging, and checksums on macOS, Linux, and Windows.
+
+## Releases
+
+`scripts/package.sh` creates the release tarball, Windows zip, and checksums under ignored `dist/`. `scripts/package.ps1` builds the zip on Windows.
+
+Tags matching `v*` trigger the release workflow. The tag must match the value in `VERSION`. See [RELEASING.md](RELEASING.md).
+
+## Extending to another harness
+
+[INSTALL_NEW_HARNESS.md](INSTALL_NEW_HARNESS.md) is an agent-ready integration contract. Give it to an agent operating on the development machine; it covers discovery, backup, adapters, plugins, MCP, automation, and verification.
+
+## Hosted agents
+
+Cloud and hosted agents cannot automatically access a local home directory or its symlinks. Configure those environments through their repository, organization, account, or marketplace mechanism.
