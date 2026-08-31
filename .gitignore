@@ -1,0 +1,7 @@
+backups/*
+reports/inventory-*.json
+reports/final-report.md
+reports/doctor-output.txt
+reports/environment.json
+reports/cleanup-plan.txt
+reports/git-status-*.txt

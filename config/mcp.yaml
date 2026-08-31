@@ -1,0 +1,23 @@
+services:
+  microsoft-learn:
+    enabled: true
+    transport: streamable-http
+    url: https://learn.microsoft.com/api/mcp
+    authentication: none
+    reason: Current Microsoft Learn documentation for .NET and Microsoft platform APIs.
+
+  github:
+    enabled: existing-or-built-in-only
+    reason: Preserve reliable existing integration; Copilot CLI provides GitHub tools natively.
+
+playwright:
+  global_mcp: false
+  preferred: Playwright CLI and Playwright Agent Skills when a repository needs browser automation.
+
+prohibited_global_defaults:
+  - filesystem
+  - shell
+  - generic-search
+  - database
+  - production-infrastructure
+

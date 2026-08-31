@@ -1,0 +1,33 @@
+source:
+  repository: dotnet/skills
+  marketplace: dotnet-agent-skills
+
+core:
+  - dotnet
+
+standard:
+  - dotnet-aspnetcore
+  - dotnet-data
+  - dotnet-nuget
+
+optional:
+  - dotnet-msbuild
+  - dotnet-diag
+  - dotnet-upgrade
+  - dotnet-maui
+  - dotnet-blazor
+  - dotnet-ai
+
+excluded_by_default:
+  - dotnet-test
+  - dotnet-test-migration
+  - dotnet-advanced
+  - dotnet-template-engine
+  - dotnet11
+
+harnesses:
+  codex: plugin-marketplace
+  claude: plugin-marketplace
+  cursor: local-plugin-symlinks
+  copilot: unavailable-until-cli-installed
+
