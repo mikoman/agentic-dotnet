@@ -111,6 +111,60 @@ Create `skills/<skill-name>/SKILL.md`, then run the platform sync script:
 
 The sync exposes the same physical skill to compatible harnesses. Do not copy framework reference material that is already maintained by official .NET skills.
 
+### Installing a third-party skill
+
+Audit a third-party skill's `SKILL.md`, scripts, hooks, and referenced resources before installing it. Skills run with the permissions granted to the harness.
+
+When Codex is installed, its bundled skill installer can download a skill directory from GitHub directly into the canonical tree. On macOS or Linux:
+
+```sh
+python3 ~/.codex/skills/.system/skill-installer/scripts/install-skill-from-github.py \
+  --repo OWNER/REPOSITORY \
+  --path PATH/TO/SKILL \
+  --dest ~/.agentic-dotnet/skills
+
+~/.agentic-dotnet/scripts/sync.sh
+```
+
+On Windows:
+
+```powershell
+py "$env:USERPROFILE\.codex\skills\.system\skill-installer\scripts\install-skill-from-github.py" `
+  --repo OWNER/REPOSITORY `
+  --path PATH/TO/SKILL `
+  --dest "$env:USERPROFILE\.agentic-dotnet\skills"
+
+& "$env:USERPROFILE\.agentic-dotnet\scripts\sync.ps1"
+```
+
+The installer refuses to overwrite an existing skill directory. Review upstream changes before replacing or updating an installed skill. If Codex is unavailable, download or clone the same skill directory into `~/.agentic-dotnet/skills/<skill-name>/`, preserving its complete directory structure, and then run the sync script.
+
+Sync keeps one physical copy and exposes it through:
+
+- `~/.agents/skills/<skill-name>` for Codex, Copilot CLI, and other compatible Agent Skills clients;
+- `~/.claude/skills/<skill-name>` for Claude Code;
+- harness adapters where the target tool needs a different discovery mechanism.
+
+Start a new agent session after installation. In Copilot CLI, run `/skills reload` and `/skills list` to reload and verify personal skills. Local home-directory skills are not available to hosted/cloud agents; install those at repository, organization, marketplace, or account scope as supported by that service.
+
+### Example: Impeccable
+
+[Impeccable](https://github.com/pbakaus/impeccable) provides frontend-design guidance and commands. Install its official portable skill into the canonical tree on macOS or Linux:
+
+```sh
+python3 ~/.codex/skills/.system/skill-installer/scripts/install-skill-from-github.py \
+  --repo pbakaus/impeccable \
+  --path .agents/skills/impeccable \
+  --dest ~/.agentic-dotnet/skills
+
+~/.agentic-dotnet/scripts/sync.sh
+~/.agentic-dotnet/scripts/doctor.sh
+```
+
+The global skill can be invoked with `$impeccable` or the harness's skill-command syntax, such as `/impeccable init` or `/impeccable audit`.
+
+Impeccable's provider-native edit-detection hooks are project-local. Installing the global skill does not silently enable those hooks in every repository. For a project that needs the complete detector integration, run `npx impeccable install` from that project's root, review the proposed files, and approve any harness-specific hook trust prompt. This project-local integration is an intentional exception to the central-only skill layout.
+
 ## Repository-specific instructions
 
 Add a project `AGENTS.md` only for durable facts that are not clear from source or deterministic configuration, such as unusual build commands, generated-code boundaries, database-first behavior, domain invariants, or deployment constraints.
