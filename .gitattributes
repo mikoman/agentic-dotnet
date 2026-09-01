@@ -7,3 +7,6 @@
 *.yml text eol=lf
 *.tar.gz binary
 *.zip binary
+
+# Preserve formatting in vendored third-party skills.
+skills/impeccable/** -whitespace
