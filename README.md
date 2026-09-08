@@ -99,6 +99,8 @@ See [PORTABLE_INSTALL.md](PORTABLE_INSTALL.md) for installation options, recover
 
 ## Personal skills
 
+The canonical tree includes personal skills and reviewed third-party skills: Impeccable and the 25 engineering/productivity skills from [Matt Pocock](skills/MATTPOCOCK.md). Both are included in clones and release packages.
+
 Create `skills/<skill-name>/SKILL.md`, then run the platform sync script:
 
 ```sh
@@ -141,11 +143,19 @@ The installer refuses to overwrite an existing skill directory. Review upstream 
 
 Sync keeps one physical copy and exposes it through:
 
-- `~/.agents/skills/<skill-name>` for Codex, Copilot CLI, and other compatible Agent Skills clients;
+- `~/.agents/skills/<skill-name>` for Codex, Copilot CLI, Cursor, and Kilo;
 - `~/.claude/skills/<skill-name>` for Claude Code;
 - harness adapters where the target tool needs a different discovery mechanism.
 
 Start a new agent session after installation. In Copilot CLI, run `/skills reload` and `/skills list` to reload and verify personal skills. Local home-directory skills are not available to hosted/cloud agents; install those at repository, organization, marketplace, or account scope as supported by that service.
+
+### Matt Pocock's engineering and productivity skills
+
+The main collection is already installed centrally under `skills/<skill-name>/`. Run the existing sync script to expose it to all five local harnesses; no separate Matt Pocock plugin or per-harness download is needed.
+
+Start with `$ask-matt` in Codex or `/ask-matt` in harnesses with slash commands. Before using the engineering workflows in an application repository, invoke `setup-matt-pocock-skills` there to configure that project's tracker, labels, and domain documentation. Installing the shared collection does not run that project setup.
+
+See the [inventory and pinned source](skills/MATTPOCOCK.md) for all 25 skills and the [portable skill instructions](PORTABLE_INSTALL.md#shared-skills-including-matt-pococks-collection) for restoring, adding, or updating them. Miscellaneous and unfinished upstream skills are opt-in.
 
 ### Example: Impeccable
 
