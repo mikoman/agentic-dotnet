@@ -60,6 +60,8 @@ Use this preference order:
 
 Generated adapters must contain a managed marker and direct maintainers to edit `instructions/global.md`. Do not add generic .NET advice to the adapter.
 
+Include the complete canonical instructions, including [GitNexus indexing and code discovery](instructions/global.md#gitnexus-indexing-and-code-discovery). Preserve those mandatory indexing and freshness rules when integrating third-party skills, hooks, or MCP tools; keep the rules in the canonical source instead of maintaining harness-specific copies. Preparing a harness does not run indexing in application repositories.
+
 ### 4. Expose personal skills
 
 Personal and reviewed third-party reusable skills physically live only under `skills/<skill-name>/`.
@@ -146,6 +148,7 @@ Also verify:
 - every new symlink resolves;
 - every installed canonical skill is discoverable through the harness's supported skill path, with supporting files intact; check the skill picker/list in installed harnesses and report prepared paths separately when a harness is absent;
 - generated adapters match the canonical source;
+- each harness's instruction link, import, or generated adapter includes the canonical GitNexus workflow; distinguish configured paths from instructions loaded in a running session;
 - repeated installation produces no duplicate plugin or MCP entries;
 - unrelated harness configuration is unchanged;
 - no secret appears in Git changes or reports;

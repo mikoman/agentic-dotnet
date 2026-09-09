@@ -97,6 +97,14 @@ The default installation root is `~/.agentic-dotnet`. Set `AGENTIC_DOTNET_HOME` 
 
 See [PORTABLE_INSTALL.md](PORTABLE_INSTALL.md) for installation options, recovery paths, and platform behavior.
 
+## GitNexus workflow
+
+The mandatory branch-indexing and code-discovery rules live in [instructions/global.md](instructions/global.md#gitnexus-indexing-and-code-discovery). The existing instruction links, Claude import, and generated Cursor rule distribute them to the configured local harnesses. Edit that one source and run the platform sync script to propagate changes.
+
+This guidance uses an existing GitNexus installation through MCP when configured or through its CLI. It does not install GitNexus or add an MCP server. Missing tools and unsupported code paths use the documented source-search fallback. Start a new harness session after syncing so it loads the updated instructions.
+
+These are mandatory agent instructions, not shell-level enforcement. Repository/worktree index data remains local to each checkout; the instructions do not require copying skills or generated agent guidance into application repositories.
+
 ## Personal skills
 
 The canonical tree includes personal skills and reviewed third-party skills: Impeccable and the 25 engineering/productivity skills from [Matt Pocock](skills/MATTPOCOCK.md). Both are included in clones and release packages.
