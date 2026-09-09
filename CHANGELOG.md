@@ -2,6 +2,13 @@
 
 All notable changes to this project are documented here.
 
+## 1.1.2 - 2026-09-09
+
+- Added mandatory GitNexus indexing and code-discovery guidance to the shared harness instructions, including `analyze --index-only`, branch/worktree freshness checks, and source-search fallbacks.
+- Added the 25 Matt Pocock engineering and productivity skills to the canonical shared skills tree.
+- Added the Impeccable global skill for frontend design workflows.
+- Documented portable third-party skill installation and shared discovery across supported local harnesses.
+
 ## 1.1.0 - 2026-08-31
 
 - Added portable bootstrap installers for macOS, Linux, and Windows.
