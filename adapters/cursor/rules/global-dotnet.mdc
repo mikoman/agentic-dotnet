@@ -16,7 +16,7 @@ alwaysApply: true
 - Use GitNexus when finding unfamiliar implementations, following callers/callees, tracing execution flows, or assessing the impact of a cross-file change. Prefer `query` for concept searches, `context` for a symbol's relationships, and `impact` for affected dependants. Use `rg` for exact text, configuration, unsupported files, and small searches where a graph adds no value.
 - Use the harness's GitNexus MCP tools when available, otherwise the installed CLI equivalents (`gitnexus query`, `gitnexus context`, `gitnexus impact`). Explicitly select the current checkout with MCP `repo` or CLI `--repo`; use its absolute path when repository names collide. A main-checkout index is not a substitute for the active worktree's index.
 - Read the actual source before changing it and verify graph results against the current code. Missing graph edges or search results do not prove there are no callers; account for generated code, reflection, dependency injection, Razor, and XAML bindings. Graph analysis does not replace compiler, analyzer, or test validation.
-- If GitNexus is unavailable, indexing fails, or relevant files are unsupported, report that limitation briefly and continue with source searches and available language/compiler tools. Do not present a stale or incomplete graph as current or complete.
+- If GitNexus is unavailable, indexing fails, or relevant files are unsupported, report that limitation briefly and continue with source searches and available language/compiler tools. For a missing installation, provide the [official repository and installation guide](https://github.com/abhigyanpatwari/GitNexus#quick-start). Do not present a stale or incomplete graph as current or complete.
 
 ## .NET and C# changes
 

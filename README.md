@@ -103,6 +103,15 @@ The mandatory branch-indexing and code-discovery rules live in [instructions/glo
 
 This guidance uses an existing GitNexus installation through MCP when configured or through its CLI. It does not install GitNexus or add an MCP server. Missing tools and unsupported code paths use the documented source-search fallback. Start a new harness session after syncing so it loads the updated instructions.
 
+To install GitNexus separately, follow the [official repository and CLI installation guide](https://github.com/abhigyanpatwari/GitNexus#quick-start). With a Node.js version supported by GitNexus installed, run:
+
+```sh
+npm install --global gitnexus
+gitnexus --version
+```
+
+The CLI is enough for the shared workflow; MCP integration is optional. Keep this repository's indexing rules when following upstream examples. Review GitNexus's [licence](https://github.com/abhigyanpatwari/GitNexus/blob/main/LICENSE) and [commercial licensing options](https://github.com/abhigyanpatwari/GitNexus#enterprise) before adopting it for commercial work.
+
 These are mandatory agent instructions, not shell-level enforcement. Repository/worktree index data remains local to each checkout; the instructions do not require copying skills or generated agent guidance into application repositories.
 
 ## Personal skills

@@ -8,6 +8,7 @@ All notable changes to this project are documented here.
 - Added the 25 Matt Pocock engineering and productivity skills to the canonical shared skills tree.
 - Added the Impeccable global skill for frontend design workflows.
 - Documented portable third-party skill installation and shared discovery across supported local harnesses.
+- Added GitNexus CLI installation instructions and upstream links to the shared workflow documentation.
 
 ## 1.1.0 - 2026-08-31
 
