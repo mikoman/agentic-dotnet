@@ -2,6 +2,13 @@
 
 All notable changes to this project are documented here.
 
+## 1.1.3 - 2026-09-10
+
+- Added ASD-STE100 version 0.4.0 from a pinned upstream commit, with its MIT license, references, examples, and linter.
+- Required the skill for all authored text through the canonical instructions and shared harness adapters.
+- Required parent agents to pass the text-output rule to delegated agents when the harness does not pass it to them.
+- Updated the installation guides with shared skill paths, checks, and platform limits.
+
 ## 1.1.2 - 2026-09-09
 
 - Added mandatory GitNexus indexing and code-discovery guidance to the shared harness instructions, including `analyze --index-only`, branch/worktree freshness checks, and source-search fallbacks.

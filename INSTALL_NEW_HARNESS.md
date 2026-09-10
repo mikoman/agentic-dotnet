@@ -9,7 +9,7 @@ Do not create a parallel configuration system. Extend this repository and keep i
 Connect the named harness to:
 
 - `instructions/global.md` for always-on .NET/C# behavior;
-- `skills/` for personal and reviewed third-party Agent Skills, including Impeccable and Matt Pocock's main collection;
+- `skills/` for personal and reviewed third-party Agent Skills, including ASD-STE100, Impeccable, and Matt Pocock's main collection;
 - the official `dotnet/skills` plugins declared in `config/plugins.yaml`;
 - the minimal external services declared in `config/mcp.yaml`.
 
@@ -62,6 +62,10 @@ Generated adapters must contain a managed marker and direct maintainers to edit 
 
 Include the complete canonical instructions, including [GitNexus indexing and code discovery](instructions/global.md#gitnexus-indexing-and-code-discovery). Preserve those mandatory indexing and freshness rules when integrating third-party skills, hooks, or MCP tools; keep the rules in the canonical source instead of maintaining harness-specific copies. Preparing a harness does not run indexing in application repositories.
 
+Include the [text-output rule](instructions/global.md#text-output) in every instruction adapter. It requires `asd-ste100` for all authored text. Keep this rule in the canonical source. It overrides the skill's narrower upstream triggers.
+
+Check whether delegated agents inherit the canonical instructions. If they do not, the parent agent must include the text-output requirement in their task instructions.
+
 ### 4. Expose personal skills
 
 Personal and reviewed third-party reusable skills physically live only under `skills/<skill-name>/`.
@@ -72,7 +76,7 @@ Personal and reviewed third-party reusable skills physically live only under `sk
 - Do not copy skill contents.
 - Do not centralize standard .NET knowledge already maintained by the official `dotnet/skills` project.
 
-The checked-in library currently includes Impeccable and the 25 Matt Pocock engineering/productivity skills recorded in [skills/MATTPOCOCK.md](skills/MATTPOCOCK.md). Expose the entire canonical tree, including future additions, rather than hard-coding that list in a harness adapter. Keep each complete skill directory, including `agents/openai.yaml`, references, templates, and `LICENSE`.
+The checked-in library includes [ASD-STE100](skills/ASD-STE100.md), Impeccable, and the 25 Matt Pocock engineering/productivity skills in [skills/MATTPOCOCK.md](skills/MATTPOCOCK.md). Expose the entire canonical tree, including future additions, rather than hard-coding that list in a harness adapter. Keep each complete skill directory, including `agents/openai.yaml`, references, templates, and `LICENSE`.
 
 The existing discovery paths are:
 
@@ -148,6 +152,8 @@ Also verify:
 - every new symlink resolves;
 - every installed canonical skill is discoverable through the harness's supported skill path, with supporting files intact; check the skill picker/list in installed harnesses and report prepared paths separately when a harness is absent;
 - generated adapters match the canonical source;
+- the harness receives the text-output rule and can load `asd-ste100`, including its references and linter;
+- a fresh session can identify this rule and apply the skill to a normal answer without an explicit skill request;
 - each harness's instruction link, import, or generated adapter includes the canonical GitNexus workflow; distinguish configured paths from instructions loaded in a running session;
 - repeated installation produces no duplicate plugin or MCP entries;
 - unrelated harness configuration is unchanged;
@@ -179,5 +185,5 @@ Replace `<HARNESS>` and give this prompt to an agent operating on the developmen
 ```text
 Integrate <HARNESS> with my existing centralized .NET coding-agent setup.
 
-Read ~/.agentic-dotnet/INSTALL_NEW_HARNESS.md completely and execute it as the installation contract. Treat ~/.agentic-dotnet as the source of truth. Inspect current local help and official documentation before choosing configuration or plugin commands. Expose the entire central skills tree, including Impeccable and the Matt Pocock collection listed in skills/MATTPOCOCK.md, through supported discovery paths without separate copies or duplicate plugins. Preserve unrelated configuration and secrets, create a timestamped backup before replacement, make the integration idempotent, extend install/sync/doctor and documentation, run verification, and report unsupported capabilities accurately. Do not modify or commit application repositories or run per-project skill setup as part of harness installation.
+Read ~/.agentic-dotnet/INSTALL_NEW_HARNESS.md completely and execute it as the installation contract. Treat ~/.agentic-dotnet as the source of truth. Inspect current local help and official documentation before choosing configuration or plugin commands. Expose the entire central skills tree, including ASD-STE100, Impeccable, and the Matt Pocock collection listed in skills/MATTPOCOCK.md, through supported discovery paths without separate copies or duplicate plugins. Distribute the canonical text-output rule so the harness must use asd-ste100 for all authored text. Preserve unrelated configuration and secrets, create a timestamped backup before replacement, make the integration idempotent, extend install/sync/doctor and documentation, run verification, and report unsupported capabilities accurately. Do not modify or commit application repositories or run per-project skill setup as part of harness installation.
 ```

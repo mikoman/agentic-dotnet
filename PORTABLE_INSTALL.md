@@ -81,7 +81,7 @@ Missing harnesses produce warnings, not installation failures. Run the bootstrap
 
 ## Shared skills, including Matt Pocock's collection
 
-This package includes Impeccable and the **25 main engineering/productivity skills** from [mattpocock/skills](https://github.com/mattpocock/skills). The complete inventory, source paths, pinned commit, invocation settings, and usage guide are in [skills/MATTPOCOCK.md](skills/MATTPOCOCK.md). The miscellaneous and in-progress buckets are excluded unless explicitly selected later.
+This package includes [ASD-STE100](skills/ASD-STE100.md), Impeccable, and the **25 main engineering/productivity skills** from [mattpocock/skills](https://github.com/mattpocock/skills). The complete inventory, source paths, pinned commit, invocation settings, and usage guide are in [skills/MATTPOCOCK.md](skills/MATTPOCOCK.md). The miscellaneous and in-progress buckets are excluded unless explicitly selected later.
 
 ### Restore on another machine
 
@@ -98,6 +98,16 @@ There is one physical copy under `<central-root>/skills/<skill-name>/`. Both syn
 | Kilo | `.agents/skills/<skill-name>` |
 
 These are symlinks, or directory junctions on Windows when required. Current [Copilot CLI](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-skills), [Cursor](https://cursor.com/docs/skills), and [Kilo](https://kilo.ai/docs/customize/skills) documentation describes shared skill discovery. Installing the same collection again through a native plugin or a per-harness installer would create competing installations.
+
+### ASD-STE100 for all text output
+
+`asd-ste100` follows the same central storage and discovery paths. The [canonical text-output rule](instructions/global.md#text-output) requires it for all authored text. Other skills retain their normal triggers.
+
+The requirement also applies to delegated agents. The parent agent must include it in their task instructions if the harness does not pass it to them.
+
+After sync, start a fresh session in each installed harness. Check that it can load `asd-ste100` and identify the text-output rule. Then check a normal answer for short sentences, clear actions, and preserved uncertainty. A configured path alone does not prove that a running session loaded the rule.
+
+The existing Windows Cursor/Kilo instruction limits above still apply. Shared skill discovery alone cannot impose a global writing rule. Hosted agents need their own supported instruction and skill distribution. See [the source and verification guide](skills/ASD-STE100.md).
 
 ### Use the skills when needed
 

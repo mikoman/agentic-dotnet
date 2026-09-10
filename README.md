@@ -68,7 +68,7 @@ Missing harnesses produce warnings rather than installation failures. Install th
 
 ```text
 .
-├── instructions/global.md       # Canonical always-on .NET/C# behavior
+├── instructions/global.md       # Canonical text and .NET/C# behavior
 ├── skills/                      # Canonical personal Agent Skills
 ├── config/
 │   ├── plugins.yaml             # Desired official .NET plugins
@@ -116,7 +116,7 @@ These are mandatory agent instructions, not shell-level enforcement. Repository/
 
 ## Personal skills
 
-The canonical tree includes personal skills and reviewed third-party skills: Impeccable and the 25 engineering/productivity skills from [Matt Pocock](skills/MATTPOCOCK.md). Both are included in clones and release packages.
+The canonical tree includes personal skills and reviewed third-party skills. These include [ASD-STE100](skills/ASD-STE100.md), Impeccable, and the 25 engineering/productivity skills from [Matt Pocock](skills/MATTPOCOCK.md). Clones and release packages include all of them.
 
 Create `skills/<skill-name>/SKILL.md`, then run the platform sync script:
 
@@ -165,6 +165,18 @@ Sync keeps one physical copy and exposes it through:
 - harness adapters where the target tool needs a different discovery mechanism.
 
 Start a new agent session after installation. In Copilot CLI, run `/skills reload` and `/skills list` to reload and verify personal skills. Local home-directory skills are not available to hosted/cloud agents; install those at repository, organization, marketplace, or account scope as supported by that service.
+
+### ASD-STE100 for all text output
+
+The shared [text-output rule](instructions/global.md#text-output) requires `asd-ste100` for all authored text. This includes answers, progress updates, questions, agent messages, documentation, comments, and UI text.
+
+The skill lives once under `skills/asd-ste100/`. Sync exposes it to the five local harnesses listed above. The rule expands its upstream triggers to cover all prose. It preserves facts, uncertainty, requested language, and required formats. A later explicit user style request can override the style.
+
+Delegated agents must receive the same text-output requirement. The parent agent includes it in task instructions when the harness does not pass it to the delegated agent.
+
+Run the platform sync script after an update. Start a new harness session so it loads the rule and skill. This instruction guides agent behavior. It does not intercept responses or guarantee that a model obeys every writing rule.
+
+See [the source and verification guide](skills/ASD-STE100.md) for the pinned commit, MIT license, linter, and platform limits.
 
 ### Matt Pocock's engineering and productivity skills
 

@@ -1,5 +1,16 @@
 # Global .NET and C# agent instructions
 
+## Text output
+
+- You MUST load the `asd-ste100` skill before your first authored text in each session. Use the harness's skill loader. If needed, read `~/.agents/skills/asd-ste100/SKILL.md` or `~/.claude/skills/asd-ste100/SKILL.md`. Resolve the skill's references relative to its directory.
+- You MUST apply the skill to all newly authored natural-language text. This includes progress updates, answers, questions, agent messages, documentation, PR descriptions, commit messages, code comments, and UI text. Apply it to text values in structured output too.
+- When another agent does not inherit these instructions, include this text-output requirement in its task instructions.
+- This requirement overrides the skill's opt-in triggers and exclusions for creative or marketing text. Follow a later explicit user style request when it conflicts.
+- Use Strict mode for procedures, tool descriptions, error messages, and inter-agent instructions. Use STE-flavored mode for other prose.
+- Preserve facts, uncertainty, technical terms, and the requested language. Preserve required formats, code syntax, identifiers, URLs, literal quotations, and raw tool output unless the task requires changes. Do not translate text into English without a request.
+- Apply the writing rules silently. Keep required task status, evidence, and citations. Do not add routine mode announcements or lint reports. Do not claim certified ASD-STE100 compliance.
+- If the skill is unavailable, report that limit briefly. Then use short sentences, active voice, plain words, and one instruction per sentence. Do not claim that you loaded the skill.
+
 ## GitNexus indexing and code discovery
 
 - At the start of a coding task, identify the repository root, current branch, HEAD, and working-tree changes. Before exploring or editing code on a clean branch/worktree, you MUST run `gitnexus analyze --index-only` from that checkout's root. Repeat this when creating or switching to another clean branch/worktree, even if an index already exists.
@@ -39,4 +50,3 @@
 - Do not generate or execute Entity Framework migrations unless the repository and task explicitly require them.
 - If a repository states that it is database-first, preserve that workflow and do not introduce migrations.
 - Do not modify generated code unless the repository explicitly identifies the generated source as editable.
-
