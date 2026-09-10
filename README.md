@@ -1,38 +1,153 @@
 # agentic-dotnet
 
-[![Validate](https://github.com/mikoman/agentic-dotnet/actions/workflows/validate.yml/badge.svg)](https://github.com/mikoman/agentic-dotnet/actions/workflows/validate.yml)
+[![Build status](https://github.com/mikoman/agentic-dotnet/actions/workflows/validate.yml/badge.svg)](https://github.com/mikoman/agentic-dotnet/actions/workflows/validate.yml)
 
-A portable, centralized configuration for .NET coding agents. It gives Codex, Claude Code, GitHub Copilot CLI, Cursor, and Kilo one concise instruction source, one personal Agent Skills tree, official .NET skills where supported, and a minimal MCP policy.
+`agentic-dotnet` keeps your local coding-agent configuration in one directory. It supports Codex, Claude Code, GitHub Copilot CLI, Cursor, and Kilo.
 
-The package configures installed tools. It does not install agent CLIs, IDEs, .NET, Git, Node, or credentials.
+A **harness** is the application that runs an agent. This repository gives supported harnesses shared instructions, reusable skills, and selected external tools.
 
-## Quick start
+The package contains:
 
-### macOS and Linux
+- One instruction source for text output and .NET/C# work.
+- 27 shared skills: ASD-STE100, Impeccable, and 25 Matt Pocock skills.
+- A list of official .NET plugins to install where the harness supports them.
+- A minimal Model Context Protocol (MCP) policy for external tools.
+- Install, sync, check, and package scripts for macOS, Linux, and Windows.
 
-Clone the repository and run:
+The package configures existing applications. Install your agent applications, development tools, and account credentials separately.
+
+## Contents
+
+- [Requirements](#requirements)
+- [Install](#install)
+- [Harness support](#harness-support)
+- [Check the installation](#check-the-installation)
+- [Use the shared skills](#use-the-shared-skills)
+- [Use GitNexus](#use-gitnexus)
+- [Change the configuration](#change-the-configuration)
+- [Update and recover](#update-and-recover)
+- [Solve common problems](#solve-common-problems)
+- [Build packages and contribute](#build-packages-and-contribute)
+
+## Requirements
+
+Choose the harnesses that you want to use. You do not need all five.
+
+| Requirement | When you need it |
+| --- | --- |
+| An installed agent application | To use the shared instructions and skills. |
+| Git | To clone or update this repository. The POSIX installer also uses Git for the official .NET cache. |
+| Bash and standard Unix tools | To run the macOS/Linux scripts. |
+| PowerShell | To run the Windows scripts. Use PowerShell 7 where possible. The scripts target Windows PowerShell 5.1 syntax. |
+| Network access | To download the package, install official plugins, or use Microsoft Learn MCP. |
+| Node.js | To merge Kilo configuration on macOS/Linux. Some skills also use Node.js scripts. |
+| Python 3 | To run the ASD-STE100 linter or Codex's GitHub skill installer. |
+| `jq` | Recommended on macOS/Linux for plugin detection and status checks. |
+| A suitable .NET SDK | To work on .NET applications. This package does not install an SDK. |
+
+The CLI installer commands require the relevant executables on `PATH`. Sign in to each harness through its normal account process.
+
+## Install
+
+The default central directory is `$HOME/.agentic-dotnet` on macOS/Linux and `$HOME\.agentic-dotnet` on Windows.
+
+Keep this directory after installation. Harness links refer to its files.
+
+### Install from Git
+
+Use these commands for a new installation. If the central directory already exists, follow [Update and recover](#update-and-recover).
+
+**macOS/Linux:**
 
 ```sh
-git clone https://github.com/mikoman/agentic-dotnet.git
-cd agentic-dotnet
+git clone https://github.com/mikoman/agentic-dotnet.git "$HOME/.agentic-dotnet"
+cd "$HOME/.agentic-dotnet"
 ./bootstrap.sh
 ```
 
-Or download the latest `.tar.gz` from [GitHub Releases](https://github.com/mikoman/agentic-dotnet/releases), verify it against `SHA256SUMS`, extract it, and run `./bootstrap.sh`.
-
-### Windows
-
-Clone or extract the release zip, open PowerShell in the repository directory, and run:
+**Windows:**
 
 ```powershell
+git clone https://github.com/mikoman/agentic-dotnet.git "$HOME\.agentic-dotnet"
+Set-Location "$HOME\.agentic-dotnet"
 powershell -ExecutionPolicy Bypass -File .\bootstrap.ps1
 ```
 
-PowerShell 7 is recommended. The scripts retain Windows PowerShell 5.1-compatible syntax.
+Bootstrap installs the central files, runs the installer, and runs the doctor check. If the checkout already occupies the target directory, bootstrap uses it directly.
 
-### Existing harness configuration
+If you run bootstrap from another directory, it copies the package to the central directory. Edit the installed central copy afterward.
 
-Existing unrelated instruction or MCP files are backed up and preserved by default. If you have reviewed the warnings and want this package to take ownership:
+### Install from a release
+
+1. Open [GitHub Releases](https://github.com/mikoman/agentic-dotnet/releases).
+2. Download the `.tar.gz` for macOS/Linux or the `.zip` for Windows.
+3. Download `SHA256SUMS` from the same release.
+4. Compare the archive's SHA-256 hash with its entry in `SHA256SUMS`.
+5. Extract the archive.
+6. Open a terminal in the extracted directory.
+7. Run the bootstrap command for your platform from the previous section.
+
+For release `v1.1.3`, these commands calculate the archive hash:
+
+```sh
+# macOS
+shasum -a 256 agentic-dotnet-1.1.3.tar.gz
+
+# Linux
+sha256sum agentic-dotnet-1.1.3.tar.gz
+```
+
+```powershell
+Get-FileHash .\agentic-dotnet-1.1.3.zip -Algorithm SHA256
+```
+
+Use the actual archive name for another release. Continue only when the hash matches.
+
+### Installation options
+
+| macOS/Linux option | Windows option | Effect |
+| --- | --- | --- |
+| `--dry-run` | `-DryRun` | List planned file copies without installing harness configuration. Windows can create the empty target directory. |
+| `--skip-plugins` | `-SkipPlugins` | Skip plugin and MCP CLI commands. Sync still prepares skills, instruction adapters, and MCP configuration files. |
+| `--no-verify` | `-NoVerify` | Skip the final doctor check. |
+| `--target PATH` | `-TargetRoot PATH` | Choose the central directory. |
+| `--replace-existing` | `-ReplaceExisting` | Permit replacement of conflicting regular harness files after backup. |
+
+For example, install shared skills and adapters without plugin CLI commands:
+
+```sh
+./bootstrap.sh --skip-plugins
+```
+
+```powershell
+.\bootstrap.ps1 -SkipPlugins
+```
+
+This option is not a complete offline mode. It does not disable MCP configuration or network access during later skill use.
+
+### Use a custom central directory
+
+Set `AGENTIC_DOTNET_HOME` to the chosen path before bootstrap. For example:
+
+```sh
+export AGENTIC_DOTNET_HOME="$HOME/Tools/agentic-dotnet"
+./bootstrap.sh
+```
+
+```powershell
+$env:AGENTIC_DOTNET_HOME = 'D:\Tools\agentic-dotnet'
+.\bootstrap.ps1
+```
+
+Keep the same setting for later bootstrap runs. If you also pass a target option, use the same path in both settings.
+
+### Preserve existing configuration
+
+Review each warning before using the replacement option. Sync normally preserves unrelated regular files and reports conflicts. It can replace existing links at managed paths.
+
+Bootstrap saves changed central files under `backups/bootstrap-<timestamp>/package-overwrite/`. Sync saves conflicting harness paths under `backups/sync-<timestamp>/`.
+
+After you inspect a conflict and its backup, you can permit replacement:
 
 ```sh
 ./bootstrap.sh --replace-existing
@@ -42,200 +157,339 @@ Existing unrelated instruction or MCP files are backed up and preserved by defau
 .\bootstrap.ps1 -ReplaceExisting
 ```
 
-Rerunning the bootstrap updates package-owned files and repairs adapters idempotently.
+## Harness support
 
-## What it configures
+The scripts use links, imports, or generated adapters to distribute the central instructions. They keep one physical copy of each shared skill.
 
-- Codex: global `AGENTS.md`, shared personal skills, official `dotnet/skills` marketplace plugins, and Microsoft Learn MCP.
-- Claude Code: a generated import of the canonical instructions, linked personal skills, official marketplace plugins, and Microsoft Learn MCP.
-- GitHub Copilot CLI: global instructions, shared personal skills, and centrally managed Microsoft Learn MCP configuration. The installer does not invent an unsupported plugin marketplace command.
-- Cursor: a generated local plugin and links to a shallow checkout of the official .NET plugins.
-- Kilo: global instructions, shared personal skills, Microsoft Learn MCP, and official skill paths from the shallow cache.
+| Harness | Instruction and tool setup | Shared skill path |
+| --- | --- | --- |
+| Codex | Global `AGENTS.md`, official .NET marketplace plugins, and Microsoft Learn MCP. | `~/.agents/skills/<skill-name>` |
+| Claude Code | Global `CLAUDE.md` import, official .NET marketplace plugins, and Microsoft Learn MCP. | `~/.claude/skills/<skill-name>` |
+| GitHub Copilot CLI | Global instructions and Microsoft Learn MCP configuration. This installer does not automate official .NET plugin installation for Copilot. | `~/.agents/skills/<skill-name>` |
+| Cursor | POSIX scripts prepare a local instruction/MCP plugin and links to official .NET plugins. | `~/.agents/skills/<skill-name>` |
+| Kilo | POSIX scripts prepare global instructions, Microsoft Learn MCP, and official .NET skill paths. | `~/.agents/skills/<skill-name>` |
 
-Missing harnesses produce warnings rather than installation failures. Install the desired harness separately and rerun the bootstrap.
+`~` means your home directory. Windows uses the equivalent paths under your user profile.
 
-## Design principles
+Windows tries symbolic links first. Without link permission, sync uses generated instruction files and directory junctions for skills.
 
-1. Deterministic repository configuration remains authoritative.
-2. Durable repository-specific facts belong in a concise root `AGENTS.md`.
-3. Standard .NET knowledge comes from the official [`dotnet/skills`](https://github.com/dotnet/skills) project.
-4. Personal Agent Skills remain small and physically live in one tree.
-5. Global instructions have one manually edited source.
-6. MCP is used only for external capabilities that need it.
-7. Harness-specific files are symlinks, imports, junctions, or generated adapters.
+Both platform scripts expose the shared skills to all five harnesses. The PowerShell scripts configure the remaining instructions, plugins, and MCP integration for Codex, Claude Code, and Copilot CLI.
 
-## Repository layout
+**Windows Cursor/Kilo support is partial.** Shared skill paths do not establish full Windows instruction, plugin, or MCP support for those two harnesses.
 
-```text
-.
-├── instructions/global.md       # Canonical text and .NET/C# behavior
-├── skills/                      # Canonical personal Agent Skills
-├── config/
-│   ├── plugins.yaml             # Desired official .NET plugins
-│   └── mcp.yaml                 # Credential-free MCP policy
-├── adapters/                    # Thin/generated harness representations
-├── scripts/
-│   ├── install.sh / install.ps1
-│   ├── sync.sh / sync.ps1
-│   ├── doctor.sh / doctor.ps1
-│   └── package.sh / package.ps1
-├── bootstrap.sh                 # macOS/Linux entry point
-├── bootstrap.ps1               # Windows entry point
-└── PORTABLE_INSTALL.md
+On macOS/Linux, Kilo setup requires an existing `~/.config/kilo` directory. Official Kilo skills use a shared cache through `skills.paths`. Kilo does not receive the official plugins' language servers through this mechanism.
+
+Missing applications produce warnings. Install the application separately. Then run bootstrap again.
+
+### Hosted and remote agents
+
+Local links do not make skills available to cloud agents or remote machines. Configure their instructions and skills through a supported repository, account, organization, or marketplace mechanism.
+
+## Check the installation
+
+Run the doctor from the central directory:
+
+```sh
+./scripts/doctor.sh
 ```
 
-The default installation root is `~/.agentic-dotnet`. Set `AGENTIC_DOTNET_HOME` or pass `--target`/`-TargetRoot` to use another path.
+```powershell
+.\scripts\doctor.ps1
+```
 
-## Safety
+The doctor checks adapters, shared skill paths, and available plugin/MCP status. It reports `PASS`, `WARN`, and `FAIL` results. A warning can indicate an absent application or an unavailable status check. Inspect every failure before using the configuration.
 
-- Package updates back up changed central files.
-- Sync backs up harness files before replacement.
-- Existing unrelated harness files are preserved unless replacement is explicitly requested.
-- Local backups, reports, build archives, credentials, and machine state are excluded from Git and release packages.
-- No script modifies application source repositories.
-- No credentials are stored in declarative MCP configuration.
+On macOS/Linux, supply a development directory to scan for duplicate agent configuration:
 
-See [PORTABLE_INSTALL.md](PORTABLE_INSTALL.md) for installation options, recovery paths, and platform behavior.
+```sh
+./scripts/doctor.sh /path/to/development/root
+```
 
-## GitNexus workflow
+This scan reports files. It does not delete application files. Without a directory argument, the doctor skips this scan.
 
-The mandatory branch-indexing and code-discovery rules live in [instructions/global.md](instructions/global.md#gitnexus-indexing-and-code-discovery). The existing instruction links, Claude import, and generated Cursor rule distribute them to the configured local harnesses. Edit that one source and run the platform sync script to propagate changes.
+Then check the running harness:
 
-This guidance uses an existing GitNexus installation through MCP when configured or through its CLI. It does not install GitNexus or add an MCP server. Missing tools and unsupported code paths use the documented source-search fallback. Start a new harness session after syncing so it loads the updated instructions.
+1. Start a fresh agent session.
+2. Check that its skill list contains `asd-ste100` and `ask-matt`.
+3. Ask it to identify the shared text-output rule.
+4. Check a normal answer for clear sentences and preserved technical meaning.
 
-To install GitNexus separately, follow the [official repository and CLI installation guide](https://github.com/abhigyanpatwari/GitNexus#quick-start). With a Node.js version supported by GitNexus installed, run:
+In Copilot CLI, use `/skills reload`, `/skills list`, and `/skills info asd-ste100`. See the [Copilot skill guide](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-skills).
+
+In Cursor, open the Skills view under Customize. See the [Cursor skill guide](https://cursor.com/docs/skills). Use the current skill picker or reload command in other harnesses.
+
+Correct file paths prove configuration. They do not prove that every running agent loaded or followed the instructions.
+
+## Use the shared skills
+
+The repository includes 27 skills. Bootstrap installs their files without a separate download from each skill author.
+
+| Collection | Purpose | Start here |
+| --- | --- | --- |
+| ASD-STE100 | Clear text for people and agents. The shared instructions require it for all authored text. | [Source and use](skills/ASD-STE100.md) |
+| Matt Pocock, 25 skills | Planning, debugging, testing, reviews, teaching, and handover documents. | [Inventory and workflow guide](skills/MATTPOCOCK.md) |
+| Impeccable | Interface design, audits, and visual changes. | [Skill instructions](skills/impeccable/SKILL.md) |
+
+### ASD-STE100
+
+The [text-output rule](instructions/global.md#text-output) requires agents to load `asd-ste100` before their first authored text. It covers answers, questions, progress messages, documentation, comments, commit messages, and UI text.
+
+Agents use Strict mode for procedures and tool instructions. They use STE-flavored mode for other prose. They must preserve facts, uncertainty, technical terms, and the requested language.
+
+Delegated agents must receive the same requirement when their harness does not pass the central instructions to them. A later explicit user style request can override the style.
+
+To check a document with the included linter:
+
+```sh
+python3 skills/asd-ste100/scripts/ste-lint.py path/to/document.md
+```
+
+On Windows, use `py` instead of `python3`. The linter uses simple text patterns. Review each finding before changing text, identifiers, or URLs.
+
+The skill guides writing. It does not intercept responses or prove certified ASD-STE100 compliance.
+
+### Matt Pocock skills
+
+Use `$ask-matt` in Codex or `/ask-matt` in a harness with slash commands. You can also ask the agent to use the skill by name.
+
+Before adopting the engineering workflows, run `setup-matt-pocock-skills` inside the application repository. That skill configures the project's issue tracker, triage labels, and domain documents.
+
+Central installation does not run this project setup. Miscellaneous and unfinished upstream skills remain opt-in. Install the complete shared collection once to avoid duplicate plugins or separate harness copies.
+
+### Impeccable
+
+Use `$impeccable` in Codex or a command such as `/impeccable audit` in a compatible harness.
+
+The shared skill does not enable project hooks automatically. If a project needs edit-detection hooks, follow the included [hook guide](skills/impeccable/reference/hooks.md). Review the project changes and any harness trust prompt.
+
+### Skill dependencies
+
+A skill can need tools that bootstrap does not install. Impeccable scripts need Node.js. The `wizard` and `diagnosing-bugs` templates need Bash, including Git Bash or WSL on Windows.
+
+Tracker workflows need the chosen tracker tool and account access. Matt Pocock's setup also supports local Markdown files.
+
+## Use GitNexus
+
+GitNexus builds an index of code relationships. The [central GitNexus rules](instructions/global.md#gitnexus-indexing-and-code-discovery) tell agents when to index, search, and refresh a checkout.
+
+This package distributes those rules. It does not install GitNexus or register a GitNexus MCP server.
+
+For a separate CLI installation, follow the [official installation guide](https://github.com/abhigyanpatwari/GitNexus#quick-start). With a supported Node.js version available:
 
 ```sh
 npm install --global gitnexus
 gitnexus --version
 ```
 
-The CLI is enough for the shared workflow; MCP integration is optional. Keep this repository's indexing rules when following upstream examples. Review GitNexus's [licence](https://github.com/abhigyanpatwari/GitNexus/blob/main/LICENSE) and [commercial licensing options](https://github.com/abhigyanpatwari/GitNexus#enterprise) before adopting it for commercial work.
+From the relevant repository or worktree, use:
 
-These are mandatory agent instructions, not shell-level enforcement. Repository/worktree index data remains local to each checkout; the instructions do not require copying skills or generated agent guidance into application repositories.
+```sh
+gitnexus analyze --index-only
+gitnexus status
+```
 
-## Personal skills
+Always keep `--index-only`. Plain indexing and setup commands can create competing instructions, skills, or hooks.
 
-The canonical tree includes personal skills and reviewed third-party skills. These include [ASD-STE100](skills/ASD-STE100.md), Impeccable, and the 25 engineering/productivity skills from [Matt Pocock](skills/MATTPOCOCK.md). Clones and release packages include all of them.
+Keep each index in its own checkout. Check freshness after source changes or branch changes. When GitNexus is unavailable or cannot index relevant files, use source searches and compiler tools.
 
-Create `skills/<skill-name>/SKILL.md`, then run the platform sync script:
+The CLI supports this workflow without MCP. Review the upstream [license](https://github.com/abhigyanpatwari/GitNexus/blob/main/LICENSE) and [commercial options](https://github.com/abhigyanpatwari/GitNexus#enterprise) before commercial adoption.
+
+## Change the configuration
+
+Edit the central source for the behavior you want to change:
+
+| Path | Purpose |
+| --- | --- |
+| `instructions/global.md` | Shared text-output, GitNexus, and .NET/C# instructions. |
+| `skills/<skill-name>/` | One complete copy of a personal or third-party skill. |
+| `config/plugins.yaml` | Official .NET plugin selection and harness policy. |
+| `config/mcp.yaml` | External tool policy without credentials. |
+| `adapters/` | Links, imports, and generated harness files. |
+| `scripts/` | Install, sync, check, and package commands. |
+| `backups/` | Local recovery files outside Git. |
+| `reports/` | Local reports outside Git. |
+| `dist/` | Generated archives outside Git. |
+
+Keep shared behavior in `instructions/global.md`. Sync regenerates adapters, so direct edits to generated files can disappear.
+
+### Select official .NET plugins
+
+The installer reads the `core`, `standard`, and `optional` groups in [config/plugins.yaml](config/plugins.yaml). **It installs entries from all three groups.** The `optional` group is not an interactive prompt.
+
+The current selection contains:
+
+- `dotnet`, `dotnet-aspnetcore`, `dotnet-data`, and `dotnet-nuget`.
+- `dotnet-msbuild`, `dotnet-diag`, `dotnet-upgrade`, `dotnet-maui`, `dotnet-blazor`, and `dotnet-ai`.
+
+The installer excludes the `excluded_by_default` group. That group contains testing, advanced, template-engine, and .NET 11 plugins.
+
+Edit the selection before installation if you need a smaller set. Deleting an entry does not uninstall an existing marketplace plugin. Use the harness's supported uninstall command when needed.
+
+Official content stays in the harness marketplace or shared cache. Keep it outside the personal `skills/` directory. See the [official .NET skills project](https://github.com/dotnet/skills).
+
+### Configure external tools
+
+The current MCP setup uses Microsoft Learn at `https://learn.microsoft.com/api/mcp`. It preserves existing GitHub integration and avoids duplicate GitHub servers.
+
+The [MCP policy](config/mcp.yaml) excludes global filesystem, shell, generic search, database, production-infrastructure, and Playwright defaults.
+
+The scripts and adapters implement this policy. Editing the YAML alone does not generate arbitrary server configurations. Follow [INSTALL_NEW_HARNESS.md](INSTALL_NEW_HARNESS.md) when extending tool integration.
+
+Keep credentials outside this repository. Use each harness's normal authentication mechanism.
+
+### Add or update a skill
+
+1. Inspect the skill instructions, scripts, hooks, and supporting files.
+2. Check for an existing skill with the same name.
+3. Choose a specific upstream commit for a third-party skill.
+4. Place the complete directory under `skills/<skill-name>/`.
+5. Retain its license and source record.
+6. Run the platform sync script.
+7. Run the platform installer with its plugin-skip option.
+8. Run the doctor.
+9. Start a fresh harness session.
+
+For your own skill, create `skills/<skill-name>/SKILL.md`. Keep its references and scripts in the same directory.
+
+For GitHub downloads, use Codex's bundled installer with an explicit central destination. Replace the uppercase placeholders before running this example:
+
+```sh
+python3 "$HOME/.codex/skills/.system/skill-installer/scripts/install-skill-from-github.py" \
+  --repo OWNER/REPOSITORY \
+  --ref COMMIT_SHA \
+  --path PATH/TO/SKILL \
+  --dest "$HOME/.agentic-dotnet/skills"
+```
+
+Use your actual Codex and central paths if they differ. Without Codex, copy the reviewed skill directory from a downloaded or cloned upstream revision.
+
+The installer refuses an existing destination. Save the installed directory under `backups/` before replacing it. Preserve local changes during an update.
+
+See [PORTABLE_INSTALL.md](PORTABLE_INSTALL.md#shared-skills-including-matt-pococks-collection) for Windows commands, selected downloads, licenses, and update steps.
+
+### Apply central changes
+
+From the central directory, run:
 
 ```sh
 ./scripts/sync.sh
+./scripts/install.sh
+./scripts/doctor.sh
 ```
 
 ```powershell
 .\scripts\sync.ps1
-```
-
-The sync exposes the same physical skill to compatible harnesses. Do not copy framework reference material that is already maintained by official .NET skills.
-
-### Installing a third-party skill
-
-Audit a third-party skill's `SKILL.md`, scripts, hooks, and referenced resources before installing it. Skills run with the permissions granted to the harness.
-
-When Codex is installed, its bundled skill installer can download a skill directory from GitHub directly into the canonical tree. On macOS or Linux:
-
-```sh
-python3 ~/.codex/skills/.system/skill-installer/scripts/install-skill-from-github.py \
-  --repo OWNER/REPOSITORY \
-  --path PATH/TO/SKILL \
-  --dest ~/.agentic-dotnet/skills
-
-~/.agentic-dotnet/scripts/sync.sh
-```
-
-On Windows:
-
-```powershell
-py "$env:USERPROFILE\.codex\skills\.system\skill-installer\scripts\install-skill-from-github.py" `
-  --repo OWNER/REPOSITORY `
-  --path PATH/TO/SKILL `
-  --dest "$env:USERPROFILE\.agentic-dotnet\skills"
-
-& "$env:USERPROFILE\.agentic-dotnet\scripts\sync.ps1"
-```
-
-The installer refuses to overwrite an existing skill directory. Review upstream changes before replacing or updating an installed skill. If Codex is unavailable, download or clone the same skill directory into `~/.agentic-dotnet/skills/<skill-name>/`, preserving its complete directory structure, and then run the sync script.
-
-Sync keeps one physical copy and exposes it through:
-
-- `~/.agents/skills/<skill-name>` for Codex, Copilot CLI, Cursor, and Kilo;
-- `~/.claude/skills/<skill-name>` for Claude Code;
-- harness adapters where the target tool needs a different discovery mechanism.
-
-Start a new agent session after installation. In Copilot CLI, run `/skills reload` and `/skills list` to reload and verify personal skills. Local home-directory skills are not available to hosted/cloud agents; install those at repository, organization, marketplace, or account scope as supported by that service.
-
-### ASD-STE100 for all text output
-
-The shared [text-output rule](instructions/global.md#text-output) requires `asd-ste100` for all authored text. This includes answers, progress updates, questions, agent messages, documentation, comments, and UI text.
-
-The skill lives once under `skills/asd-ste100/`. Sync exposes it to the five local harnesses listed above. The rule expands its upstream triggers to cover all prose. It preserves facts, uncertainty, requested language, and required formats. A later explicit user style request can override the style.
-
-Delegated agents must receive the same text-output requirement. The parent agent includes it in task instructions when the harness does not pass it to the delegated agent.
-
-Run the platform sync script after an update. Start a new harness session so it loads the rule and skill. This instruction guides agent behavior. It does not intercept responses or guarantee that a model obeys every writing rule.
-
-See [the source and verification guide](skills/ASD-STE100.md) for the pinned commit, MIT license, linter, and platform limits.
-
-### Matt Pocock's engineering and productivity skills
-
-The main collection is already installed centrally under `skills/<skill-name>/`. Run the existing sync script to expose it to all five local harnesses; no separate Matt Pocock plugin or per-harness download is needed.
-
-Start with `$ask-matt` in Codex or `/ask-matt` in harnesses with slash commands. Before using the engineering workflows in an application repository, invoke `setup-matt-pocock-skills` there to configure that project's tracker, labels, and domain documentation. Installing the shared collection does not run that project setup.
-
-See the [inventory and pinned source](skills/MATTPOCOCK.md) for all 25 skills and the [portable skill instructions](PORTABLE_INSTALL.md#shared-skills-including-matt-pococks-collection) for restoring, adding, or updating them. Miscellaneous and unfinished upstream skills are opt-in.
-
-### Example: Impeccable
-
-[Impeccable](https://github.com/pbakaus/impeccable) provides frontend-design guidance and commands. Install its official portable skill into the canonical tree on macOS or Linux:
-
-```sh
-python3 ~/.codex/skills/.system/skill-installer/scripts/install-skill-from-github.py \
-  --repo pbakaus/impeccable \
-  --path .agents/skills/impeccable \
-  --dest ~/.agentic-dotnet/skills
-
-~/.agentic-dotnet/scripts/sync.sh
-~/.agentic-dotnet/scripts/doctor.sh
-```
-
-The global skill can be invoked with `$impeccable` or the harness's skill-command syntax, such as `/impeccable init` or `/impeccable audit`.
-
-Impeccable's provider-native edit-detection hooks are project-local. Installing the global skill does not silently enable those hooks in every repository. For a project that needs the complete detector integration, run `npx impeccable install` from that project's root, review the proposed files, and approve any harness-specific hook trust prompt. This project-local integration is an intentional exception to the central-only skill layout.
-
-## Repository-specific instructions
-
-Add a project `AGENTS.md` only for durable facts that are not clear from source or deterministic configuration, such as unusual build commands, generated-code boundaries, database-first behavior, domain invariants, or deployment constraints.
-
-Do not add generic C# style advice already represented by `.editorconfig`, analyzers, compiler settings, MSBuild, or project files.
-
-## Validation
-
-Run:
-
-```sh
-./scripts/doctor.sh /path/to/development/root
-```
-
-Or on Windows:
-
-```powershell
+.\scripts\install.ps1
 .\scripts\doctor.ps1
 ```
 
-GitHub Actions validates shell syntax, PowerShell syntax, bootstrap dry runs, packaging, and checksums on macOS, Linux, and Windows.
+Sync updates instructions and shared links. Install also configures supported plugins and tools. Doctor checks the result.
 
-## Releases
+For a skill-only update, `install.sh --skip-plugins` or `install.ps1 -SkipPlugins` avoids plugin CLI commands. Start a fresh session after changes.
 
-`scripts/package.sh` creates the release tarball, Windows zip, and checksums under ignored `dist/`. `scripts/package.ps1` builds the zip on Windows.
+### Keep project facts in the project
 
-Tags matching `v*` trigger the release workflow. The tag must match the value in `VERSION`. See [RELEASING.md](RELEASING.md).
+Use a project `AGENTS.md` for facts that source code and tooling cannot explain. Examples include unusual build commands, generated-code boundaries, database-first behavior, and deployment constraints.
 
-## Extending to another harness
+Keep `.editorconfig`, analyzers, compiler settings, and MSBuild configuration authoritative. Avoid repeating their rules in agent instructions.
 
-[INSTALL_NEW_HARNESS.md](INSTALL_NEW_HARNESS.md) is an agent-ready integration contract. Give it to an agent operating on the development machine; it covers discovery, backup, adapters, plugins, MCP, automation, and verification.
+To connect another harness, use [INSTALL_NEW_HARNESS.md](INSTALL_NEW_HARNESS.md) as the installation contract.
 
-## Hosted agents
+## Update and recover
 
-Cloud and hosted agents cannot automatically access a local home directory or its symlinks. Configure those environments through their repository, organization, account, or marketplace mechanism.
+### Update a Git installation
+
+Open the central checkout. Check local changes before pulling:
+
+```sh
+git status --short
+git pull --ff-only
+```
+
+Preserve any local changes before resolving an update conflict. Run the platform bootstrap after the pull:
+
+```sh
+./bootstrap.sh
+```
+
+```powershell
+.\bootstrap.ps1
+```
+
+For a custom directory, retain the same `AGENTIC_DOTNET_HOME` value.
+
+### Update an archive installation
+
+1. Download the new archive and its checksums.
+2. Check the archive hash.
+3. Extract it into a separate directory.
+4. Run its bootstrap against the existing central directory.
+
+Bootstrap saves overwritten central files under `backups/`. It does not automatically delete obsolete files or uninstall retired plugins.
+
+### Restore a previous configuration
+
+1. Inspect the relevant timestamped directory under `backups/`.
+2. Save any newer changes that you need to retain.
+3. Restore only the affected central or harness paths.
+4. Run sync if you restored central source files.
+5. Run the doctor.
+
+If you restore an unrelated harness file, sync can report a conflict again. Review that conflict before permitting replacement.
+
+There is no automatic uninstall script. To disconnect a harness:
+
+1. Delete only this package's managed links or adapters.
+2. Restore its previous configuration from the matching backup.
+3. Check remaining references before moving or deleting the central directory.
+
+## Solve common problems
+
+| Symptom | Action |
+| --- | --- |
+| A harness is missing. | Install it separately. Check its executable on `PATH`. Run bootstrap again. |
+| A skill does not appear. | Check its central `SKILL.md` and shared link. Run sync. Start a fresh session. |
+| The writing rule does not apply. | Check the instruction adapter and `asd-ste100` path. Check a fresh session. |
+| Sync preserves a conflicting file. | Inspect the file and its backup. Use the replacement option only after review. |
+| A link is broken. | Check that the central directory still exists at the configured path. Run sync. |
+| Windows cannot create a skill link. | Check symbolic-link or directory-junction permissions. Inspect the sync warning. |
+| A plugin or MCP check fails. | Check the harness CLI version, account access, and network connection. Inspect the installer output. |
+| Kilo configuration does not update. | Check Node.js and the existing Kilo config directory on macOS/Linux. |
+| An update leaves an old plugin. | Uninstall that plugin through its harness. Selection changes do not uninstall existing plugins. |
+
+Keep backups and local reports outside Git. Never include credentials, private keys, or tokens in a public issue. Follow [SECURITY.md](SECURITY.md) for security reports.
+
+## Build packages and contribute
+
+The package scripts write archives and `SHA256SUMS` under `dist/`.
+
+**macOS/Linux:**
+
+```sh
+COPYFILE_DISABLE=1 ./scripts/package.sh
+```
+
+This creates a `.tar.gz` and, when `zip` is available, a `.zip`. `COPYFILE_DISABLE=1` prevents macOS from adding AppleDouble metadata to the tar archive.
+
+**Windows:**
+
+```powershell
+.\scripts\package.ps1
+```
+
+This creates a `.zip` and its checksum. Use a clean release checkout for distribution. Package scripts exclude backups, reports, Git metadata, and existing `dist/` output.
+
+GitHub Actions checks Bash, PowerShell, bootstrap dry runs, packaging, and checksums on macOS, Linux, and Windows. CI does not prove live behavior in every harness.
+
+| Document | Use it for |
+| --- | --- |
+| [PORTABLE_INSTALL.md](PORTABLE_INSTALL.md) | Detailed installation, shared skills, and platform behavior. |
+| [INSTALL_NEW_HARNESS.md](INSTALL_NEW_HARNESS.md) | Connecting another harness or developer tool. |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Contribution rules and required checks. |
+| [RELEASING.md](RELEASING.md) | Version changes, release tags, and publication. |
+| [CHANGELOG.md](CHANGELOG.md) | Changes in each release. |
+| [SECURITY.md](SECURITY.md) | Reporting security problems without exposing secrets. |
+
+Release tags must match [VERSION](VERSION). The release workflow builds and publishes archives from the tagged commit.
+
+Bundled third-party skills retain their own license files. Check those licenses before redistributing or changing the skills.
