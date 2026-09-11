@@ -1,4 +1,4 @@
-# Global .NET and C# agent instructions
+# Global coding-agent instructions
 
 ## Text output
 
@@ -22,31 +22,57 @@
 - Read the actual source before changing it and verify graph results against the current code. Missing graph edges or search results do not prove there are no callers; account for generated code, reflection, dependency injection, Razor, and XAML bindings. Graph analysis does not replace compiler, analyzer, or test validation.
 - If GitNexus is unavailable, indexing fails, or relevant files are unsupported, report that limitation briefly and continue with source searches and available language/compiler tools. For a missing installation, provide the [official repository and installation guide](https://github.com/abhigyanpatwari/GitNexus#quick-start). Do not present a stale or incomplete graph as current or complete.
 
-## .NET and C# changes
+## Task and skill selection
+
+- Identify the languages, frameworks, runtime versions, and tools in the affected component before choosing a workflow.
+- Inspect nearby source files, manifests, lockfiles, build scripts, and repository instructions for that evidence.
+- In mixed repositories, repeat this check for each affected component. A root solution file does not make every component .NET.
+- Check the current harness's available skill names and descriptions, including repository, personal, and plugin skills.
+- Load the smallest set of skills that matches the requested task and the affected technology. Read each selected skill before use.
+- Respect each skill's invocation policy. Follow explicit user skill requests within the task's scope.
+- Use general development skills when their task matches. Check any language-specific examples against the actual repository tools.
+- Use official `dotnet/skills` only for matching .NET work or an explicit request concerning .NET. Ignore them for unrelated components.
+- When no suitable skill exists, use repository conventions and current primary documentation for the affected technology.
+- Report a missing skill when it limits the task. Install additional skills only when the task authorizes installation.
+- Before code changes, briefly state the affected technology, selected skills, and planned validation commands.
+
+## Development in any language
 
 - Inspect the existing implementation and nearby code before modifying anything.
 - Prefer the repository's existing architecture, patterns, terminology, and dependencies.
-- Keep changes scoped to the requested task; do not perform unrelated refactoring.
-- Determine the target framework and C# language version from the repository; do not assume them.
-- Before making architectural or style assumptions, inspect `global.json`, project files, `Directory.Build.*`, `Directory.Packages.*`, `.editorconfig`, and configured analyzers.
-- Treat `.editorconfig`, Roslyn analyzers, compiler settings, and MSBuild configuration as authoritative.
+- Keep changes scoped to the requested task. Avoid unrelated refactoring.
+- Treat repository formatters, linters, analyzers, compiler settings, and build configuration as authoritative.
 - Do not repeat deterministic formatting or compiler rules in prompts when tooling already enforces them.
 - Inspect adjacent files for local conventions before generating new code.
 - Prefer existing packages and platform APIs over adding a new dependency.
-- Before adding a NuGet package, confirm that the target framework or an existing dependency does not already provide the capability.
-- Do not silently change package versions, SDK versions, target frameworks, language versions, nullable settings, or warning policy.
+- Before adding a dependency, check whether the target runtime or an existing dependency provides the required capability.
+- Preserve package versions, lockfiles, SDK versions, runtime targets, language versions, and compiler policy unless the task requires changes.
 - Preserve public APIs unless the task explicitly requires a breaking change.
 - Follow the repository's established dependency-injection, options, logging, and configuration patterns.
 - Add an abstraction only when the task has a concrete need for it.
 - Do not rewrite working code merely to make it stylistically different.
 - Use current official documentation when framework or API behavior may have changed.
-- Prefer Microsoft Learn and primary .NET documentation for .NET platform behavior.
-- Validate with the narrowest relevant build, compiler, analyzer, or test command supported by the repository.
+- Prefer primary documentation from the maintainers of the affected language, framework, or tool.
+- Select external documentation tools by topic. Use Microsoft Learn MCP for Microsoft APIs and services when relevant.
+- Validate each affected component with its repository's narrowest relevant build, compiler, analyzer, or test command.
+- Check shared contracts when a change crosses language or component boundaries.
 - Do not impose a new test framework or testing requirement on a repository that does not use one.
 - Report validation commands and failures accurately; never hide or reclassify failures as success.
 - Never expose, print, copy into reports, or commit secrets.
 - Do not edit `.env`, credentials, signing assets, certificates, Keychain entries, SSH keys, or tokens unless explicitly asked.
 - Do not run destructive database operations unless explicitly instructed.
+- Run schema migrations only when the repository and task require them.
+- Do not modify generated code unless the repository explicitly identifies the generated source as editable.
+
+## .NET and C# changes
+
+Apply this section only to affected .NET components. For other components, use their own tools and relevant skills.
+
+- Determine the target framework and C# language version from the repository.
+- Inspect `global.json`, project files, `Directory.Build.*`, `Directory.Packages.*`, `.editorconfig`, and configured analyzers before choosing .NET conventions.
+- Treat Roslyn analyzers, compiler settings, and MSBuild configuration as authoritative for .NET components.
+- Before adding a NuGet package, check whether the target framework or an existing dependency provides the required capability.
+- Preserve nullable settings and warning policy unless the task requires changes.
+- Prefer Microsoft Learn and primary .NET documentation for .NET platform behavior.
 - Do not generate or execute Entity Framework migrations unless the repository and task explicitly require them.
 - If a repository states that it is database-first, preserve that workflow and do not introduce migrations.
-- Do not modify generated code unless the repository explicitly identifies the generated source as editable.

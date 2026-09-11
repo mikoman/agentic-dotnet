@@ -8,7 +8,7 @@ A **harness** is the application that runs an agent. This repository gives suppo
 
 The package contains:
 
-- One instruction source for text output and .NET/C# work.
+- One instruction source for text output, development across languages, and conditional .NET/C# rules.
 - 27 shared skills: ASD-STE100, Impeccable, and 25 Matt Pocock skills.
 - A list of official .NET plugins to install where the harness supports them.
 - A minimal Model Context Protocol (MCP) policy for external tools.
@@ -23,6 +23,7 @@ The package configures existing applications. Install your agent applications, d
 - [Harness support](#harness-support)
 - [Check the installation](#check-the-installation)
 - [Use the shared skills](#use-the-shared-skills)
+- [Work in other languages](#work-in-other-languages)
 - [Use GitNexus](#use-gitnexus)
 - [Change the configuration](#change-the-configuration)
 - [Update and recover](#update-and-recover)
@@ -268,6 +269,37 @@ A skill can need tools that bootstrap does not install. Impeccable scripts need 
 
 Tracker workflows need the chosen tracker tool and account access. Matt Pocock's setup also supports local Markdown files.
 
+## Work in other languages
+
+The directory name `agentic-dotnet` does not limit the languages you can use. The [shared instructions](instructions/global.md#task-and-skill-selection) select skills by task and affected component.
+
+The agent follows this process before code changes:
+
+1. Identify the component's language, framework, runtime, and build tools from its files.
+2. Inspect the available skill names and descriptions in the current harness.
+3. Load relevant skills according to their invocation rules.
+4. State the selected skills and planned validation commands.
+5. Use the repository's tools to check the change.
+
+The shared library already contains workflows for debugging, reviews, module design, and research. Those workflows can apply across languages. Check their examples and tool requirements against the repository. See the [skill inventory](skills/MATTPOCOCK.md) for their invocation rules.
+
+These examples describe selection, not an additional installation list:
+
+| Affected work | Skill selection and validation |
+| --- | --- |
+| C# API or EF Core code | Use the relevant official .NET skill. Check the affected .NET projects. |
+| TypeScript UI in a repository with a C# backend | Use a suitable UI or TypeScript skill when available. Use the frontend's scripts and lockfile to select checks. |
+| Python, Rust, or Go code | Use a relevant installed skill or general workflow. Use that component's tools and primary documentation. |
+| A change to both frontend and backend | Select skills separately for each component. Check both components and their shared contract. |
+
+Installed skills remain available. The instructions select which skills the agent uses for a task. They do not unload plugins or remove skill descriptions from the harness. Actual selection depends on the running agent.
+
+The .NET rules apply only to affected .NET components. Microsoft Learn MCP remains available for Microsoft APIs and services. Other work uses the relevant maintainers' documentation.
+
+If no suitable skill exists, the agent can continue with repository conventions and primary documentation. Additional skill installation requires task authorization. Use [Add or update a skill](#add-or-update-a-skill) to add a selected skill globally.
+
+The installer still uses the .NET plugin selection in `config/plugins.yaml`. It does not automatically install another language's plugins when you open a project.
+
 ## Use GitNexus
 
 GitNexus builds an index of code relationships. The [central GitNexus rules](instructions/global.md#gitnexus-indexing-and-code-discovery) tell agents when to index, search, and refresh a checkout.
@@ -300,7 +332,7 @@ Edit the central source for the behavior you want to change:
 
 | Path | Purpose |
 | --- | --- |
-| `instructions/global.md` | Shared text-output, GitNexus, and .NET/C# instructions. |
+| `instructions/global.md` | Text output, GitNexus, shared development rules, skill selection, and conditional .NET/C# instructions. |
 | `skills/<skill-name>/` | One complete copy of a personal or third-party skill. |
 | `config/plugins.yaml` | Official .NET plugin selection and harness policy. |
 | `config/mcp.yaml` | External tool policy without credentials. |

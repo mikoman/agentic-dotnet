@@ -103,6 +103,8 @@ These are symlinks, or directory junctions on Windows when required. Current [Co
 
 `asd-ste100` follows the same central storage and discovery paths. The [canonical text-output rule](instructions/global.md#text-output) requires it for all authored text. Other skills retain their normal triggers.
 
+The [task and skill selection rules](instructions/global.md#task-and-skill-selection) apply across languages. Agents select skills for the affected component and task. .NET rules apply only to .NET components. Both platform adapters consume the same canonical file. Installed plugins remain available, but installation does not require their use for every task. See [Work in other languages](README.md#work-in-other-languages).
+
 The requirement also applies to delegated agents. The parent agent must include it in their task instructions if the harness does not pass it to them.
 
 After sync, start a fresh session in each installed harness. Check that it can load `asd-ste100` and identify the text-output rule. Then check a normal answer for short sentences, clear actions, and preserved uncertainty. A configured path alone does not prove that a running session loaded the rule.

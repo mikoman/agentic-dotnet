@@ -3,7 +3,8 @@
 This repository is the source of truth for local coding-agent configuration.
 
 - Read `README.md` before changing the architecture.
-- Edit global .NET/C# behavior only in `instructions/global.md`.
+- Edit shared coding behavior and skill selection only in `instructions/global.md`.
+- Keep language-specific rules conditional on the affected component's technology.
 - Edit desired plugins and MCP policy only in `config/plugins.yaml` and `config/mcp.yaml`.
 - Treat files under `adapters/` as thin or generated harness representations.
 - Keep personal skills physically under `skills/`; do not copy official .NET skills here.

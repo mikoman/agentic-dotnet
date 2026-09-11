@@ -1,9 +1,8 @@
 {
   "name": "agentic-dotnet",
   "version": "1.0.0",
-  "description": "Generated global .NET instructions and Microsoft Learn MCP configuration.",
+  "description": "Shared coding instructions, task-based skill selection, and Microsoft Learn MCP configuration.",
   "author": {
     "name": "Local"
   }
 }
-

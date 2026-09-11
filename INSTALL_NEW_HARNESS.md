@@ -8,7 +8,7 @@ Do not create a parallel configuration system. Extend this repository and keep i
 
 Connect the named harness to:
 
-- `instructions/global.md` for always-on .NET/C# behavior;
+- `instructions/global.md` for shared coding behavior, skill selection, and conditional .NET rules;
 - `skills/` for personal and reviewed third-party Agent Skills, including ASD-STE100, Impeccable, and Matt Pocock's main collection;
 - the official `dotnet/skills` plugins declared in `config/plugins.yaml`;
 - the minimal external services declared in `config/mcp.yaml`.
@@ -63,6 +63,8 @@ Generated adapters must contain a managed marker and direct maintainers to edit 
 Include the complete canonical instructions, including [GitNexus indexing and code discovery](instructions/global.md#gitnexus-indexing-and-code-discovery). Preserve those mandatory indexing and freshness rules when integrating third-party skills, hooks, or MCP tools; keep the rules in the canonical source instead of maintaining harness-specific copies. Preparing a harness does not run indexing in application repositories.
 
 Include the [text-output rule](instructions/global.md#text-output) in every instruction adapter. It requires `asd-ste100` for all authored text. Keep this rule in the canonical source. It overrides the skill's narrower upstream triggers.
+
+Include the [task and skill selection rules](instructions/global.md#task-and-skill-selection) in every adapter. Select skills from the affected component's technology and the requested task. Keep .NET rules conditional on .NET work. Preserve the skill's invocation policy. Report available skills separately from skills selected for a task.
 
 Check whether delegated agents inherit the canonical instructions. If they do not, the parent agent must include the text-output requirement in their task instructions.
 
@@ -155,6 +157,7 @@ Also verify:
 - the harness receives the text-output rule and can load `asd-ste100`, including its references and linter;
 - a fresh session can identify this rule and apply the skill to a normal answer without an explicit skill request;
 - each harness's instruction link, import, or generated adapter includes the canonical GitNexus workflow; distinguish configured paths from instructions loaded in a running session;
+- each adapter includes component-level skill selection and conditional .NET rules;
 - repeated installation produces no duplicate plugin or MCP entries;
 - unrelated harness configuration is unchanged;
 - no secret appears in Git changes or reports;
@@ -183,7 +186,9 @@ Hosted or cloud agents may not see local home-directory files. Report that limit
 Replace `<HARNESS>` and give this prompt to an agent operating on the development machine:
 
 ```text
-Integrate <HARNESS> with my existing centralized .NET coding-agent setup.
+Integrate <HARNESS> with my existing centralized coding-agent setup.
+
+Preserve language-aware skill selection from instructions/global.md. Apply .NET rules only to affected .NET components.
 
 Read ~/.agentic-dotnet/INSTALL_NEW_HARNESS.md completely and execute it as the installation contract. Treat ~/.agentic-dotnet as the source of truth. Inspect current local help and official documentation before choosing configuration or plugin commands. Expose the entire central skills tree, including ASD-STE100, Impeccable, and the Matt Pocock collection listed in skills/MATTPOCOCK.md, through supported discovery paths without separate copies or duplicate plugins. Distribute the canonical text-output rule so the harness must use asd-ste100 for all authored text. Preserve unrelated configuration and secrets, create a timestamped backup before replacement, make the integration idempotent, extend install/sync/doctor and documentation, run verification, and report unsupported capabilities accurately. Do not modify or commit application repositories or run per-project skill setup as part of harness installation.
 ```
