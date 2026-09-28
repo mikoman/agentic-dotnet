@@ -296,6 +296,8 @@ Installed skills remain available. The instructions select which skills the agen
 
 The .NET rules apply only to affected .NET components. Microsoft Learn MCP remains available for Microsoft APIs and services. Other work uses the relevant maintainers' documentation.
 
+The [project style and structure rules](instructions/global.md#project-style-and-structure) require code that matches the affected project. Project conventions take priority over style examples in official .NET skills and other external guidance. This includes braces, multiline blocks, naming, and file structure. Agents must compare their changes with local examples before finishing.
+
 If no suitable skill exists, the agent can continue with repository conventions and primary documentation. Additional skill installation requires task authorization. Use [Add or update a skill](#add-or-update-a-skill) to add a selected skill globally.
 
 The installer still uses the .NET plugin selection in `config/plugins.yaml`. It does not automatically install another language's plugins when you open a project.

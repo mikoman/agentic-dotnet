@@ -36,14 +36,27 @@
 - Report a missing skill when it limits the task. Install additional skills only when the task authorizes installation.
 - Before code changes, briefly state the affected technology, selected skills, and planned validation commands.
 
+## Project style and structure
+
+- You MUST match the affected project's code style and structure in new and modified code.
+- Project conventions take priority over style suggestions in skills, Microsoft/.NET examples, and other external documentation.
+- Use external guidance for API behavior and correctness. Adapt its examples to the project's style and structure.
+- Before editing, read the affected file and at least two comparable, non-generated files when available. Read the instructions and formatting/analyzer configuration that apply to that directory.
+- Explicit project instructions and explicit formatter/analyzer settings take priority over inferred style. Report conflicts between those sources before changing shared rules.
+- When a style choice remains open, follow consistent patterns in the same component. Prefer nearby comparable code over generated files or isolated exceptions.
+- Match local brace use and placement, indentation, line breaks, and statement layout. If the project uses `{}` for single-statement conditions or loops, keep them. If it uses multiline blocks, keep that layout.
+- Do not replace local patterns with one-liners, expression-bodied members, or other compact forms merely for brevity.
+- Follow the project's architecture, module boundaries, file layout, naming, member order, terminology, and dependency patterns.
+- When local conventions differ, follow the applicable project rules and the nearest comparable code. Ask only when a material conflict remains unresolved.
+- Before finishing, compare the diff with the local examples. Resolve introduced style differences without reformatting unrelated code.
+- Pass these project conventions to delegated agents. Check their output against the same conventions.
+
 ## Development in any language
 
 - Inspect the existing implementation and nearby code before modifying anything.
-- Prefer the repository's existing architecture, patterns, terminology, and dependencies.
 - Keep changes scoped to the requested task. Avoid unrelated refactoring.
 - Treat repository formatters, linters, analyzers, compiler settings, and build configuration as authoritative.
 - Do not repeat deterministic formatting or compiler rules in prompts when tooling already enforces them.
-- Inspect adjacent files for local conventions before generating new code.
 - Prefer existing packages and platform APIs over adding a new dependency.
 - Before adding a dependency, check whether the target runtime or an existing dependency provides the required capability.
 - Preserve package versions, lockfiles, SDK versions, runtime targets, language versions, and compiler policy unless the task requires changes.
