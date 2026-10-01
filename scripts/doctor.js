@@ -3,7 +3,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { root, home, copilotHome, plugins, run, exists, treeDigest } = require('./managed');
+const { root, home, copilotHome, plugins, run, exists, samePath, treeDigest } = require('./managed');
 const { sources, matches } = require('./cursor-adapter');
 const totals = { PASS: 0, WARN: 0, FAIL: 0 };
 const timeout = Number(process.env.AGENTIC_DOTNET_CHECK_TIMEOUT_MS || 10000);
@@ -68,7 +68,7 @@ for (const skill of fs.readdirSync(path.join(root, 'skills'), { withFileTypes: t
   for (const prefix of ['.agents/skills', '.claude/skills']) {
     const destination = path.join(home, prefix, skill.name);
     try {
-      if (fs.realpathSync(source) !== fs.realpathSync(destination)) { throw new Error('Wrong target'); }
+      if (!samePath(source, destination)) { throw new Error('Wrong target'); }
     } catch { report('FAIL', 'skill link is missing or incorrect: ' + destination); }
   }
   skillCount++;

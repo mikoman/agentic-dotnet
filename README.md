@@ -87,18 +87,18 @@ If you run bootstrap from another directory, it copies the package to the centra
 6. Open a terminal in the extracted directory.
 7. Run the bootstrap command for your platform from the previous section.
 
-For release `v1.1.3`, these commands calculate the archive hash:
+For release `v1.2.0`, these commands calculate the archive hash:
 
 ```sh
 # macOS
-shasum -a 256 agentic-dotnet-1.1.3.tar.gz
+shasum -a 256 agentic-dotnet-1.2.0.tar.gz
 
 # Linux
-sha256sum agentic-dotnet-1.1.3.tar.gz
+sha256sum agentic-dotnet-1.2.0.tar.gz
 ```
 
 ```powershell
-Get-FileHash .\agentic-dotnet-1.1.3.zip -Algorithm SHA256
+Get-FileHash .\agentic-dotnet-1.2.0.zip -Algorithm SHA256
 ```
 
 Use the actual archive name for another release. Continue only when the hash matches.

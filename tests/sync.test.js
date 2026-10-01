@@ -6,6 +6,7 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const { spawnSync } = require('child_process');
+const { samePath } = require('../scripts/managed');
 
 test('isolated sync repairs links, respects COPILOT_HOME, and preserves unrelated files', t => {
   const temporary = fs.mkdtempSync(path.join(fs.realpathSync(os.tmpdir()), 'agentic-sync-'));
@@ -32,7 +33,7 @@ test('isolated sync repairs links, respects COPILOT_HOME, and preserves unrelate
   for (let pass = 0; pass < 2; pass++) {
     const result = spawnSync(command, args, { env, encoding: 'utf8', timeout: 30000 });
     assert.equal(result.status, 0, result.stdout + result.stderr);
-    assert.equal(fs.realpathSync(link), fs.realpathSync(skill));
+    assert.equal(samePath(link, skill), true);
     assert.equal(fs.readFileSync(unrelated, 'utf8'), 'unrelated instructions');
     assert.equal(fs.readFileSync(path.join(env.COPILOT_HOME, 'copilot-instructions.md'), 'utf8').includes('# Global coding-agent instructions'), true);
     assert.equal(fs.lstatSync(path.join(userHome, '.cursor/plugins/local/agentic-dotnet')).isSymbolicLink(), false);

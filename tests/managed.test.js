@@ -7,7 +7,7 @@ const os = require('os');
 const path = require('path');
 const { deploy, snapshot, matches } = require('../scripts/cursor-adapter');
 const { releaseFiles, stage, checkTarget } = require('../scripts/release-files');
-const { run } = require('../scripts/managed');
+const { run, samePath } = require('../scripts/managed');
 
 function fixture(t) {
   const directory = fs.mkdtempSync(path.join(fs.realpathSync(os.tmpdir()), 'agentic-test-'));
@@ -20,6 +20,32 @@ function write(directory, name, text) {
   fs.writeFileSync(file, text);
   return file;
 }
+
+test('path comparison resolves Windows short-name aliases through the native filesystem', t => {
+  const shortName = String.raw`C:\Users\RUNNER~1\AppData\Local\Temp\central\skills\code-review`;
+  const longName = String.raw`C:\Users\runneradmin\AppData\Local\Temp\central\skills\code-review`;
+  // Replay the two spellings returned by the failed Windows job.
+  const native = t.mock.method(fs.realpathSync, 'native', value => {
+    assert.ok(value === shortName || value === longName);
+    return longName;
+  });
+  t.mock.method(fs, 'realpathSync', value => value);
+  assert.equal(samePath(shortName, longName), true);
+  assert.equal(native.mock.callCount(), 2);
+});
+
+test('path comparison accepts links and rejects different or missing targets', t => {
+  const directory = fixture(t);
+  const source = path.join(directory, 'source');
+  const other = path.join(directory, 'other');
+  const link = path.join(directory, 'link');
+  fs.mkdirSync(source);
+  fs.mkdirSync(other);
+  fs.symlinkSync(source, link, process.platform === 'win32' ? 'junction' : 'dir');
+  assert.equal(samePath(link, source), true);
+  assert.equal(samePath(link, other), false);
+  assert.throws(() => samePath(link, path.join(directory, 'missing')), { code: 'ENOENT' });
+});
 
 test('Cursor deployment is physical, backed up, idempotent, and preserves local edits', t => {
   const directory = fixture(t);

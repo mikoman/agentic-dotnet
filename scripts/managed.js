@@ -46,6 +46,11 @@ function exists(file) {
   }
 }
 
+function samePath(left, right) {
+  // Windows can spell the same directory with a long name or an 8.3 alias.
+  return fs.realpathSync.native(left) === fs.realpathSync.native(right);
+}
+
 function files(directory, prefix = '') {
   const result = [];
   for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
@@ -69,4 +74,4 @@ function treeDigest(directory) {
   return crypto.createHash('sha256').update(JSON.stringify(entries)).digest('hex');
 }
 
-module.exports = { root, home, copilotHome, plugins, run, exists, files, digest, treeDigest };
+module.exports = { root, home, copilotHome, plugins, run, exists, samePath, files, digest, treeDigest };

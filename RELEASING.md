@@ -2,6 +2,8 @@
 
 Releases are built by GitHub Actions from tags and contain no local backups, reports, Git metadata, or credentials.
 
+A push to `main` runs validation. It does not publish a release or update the latest release. Publication requires a separate version tag.
+
 ## Prepare a release
 
 1. Update `VERSION`.
@@ -12,6 +14,7 @@ Releases are built by GitHub Actions from tags and contain no local backups, rep
 4. Verify `dist/SHA256SUMS`.
 5. Run `./scripts/doctor.sh` with an appropriate development root.
 6. Commit and push `main`.
+7. Wait for the Validate workflow to pass on that commit, including Windows, Linux, and macOS.
 
 ## Publish
 
@@ -24,6 +27,8 @@ git push origin "v$version"
 ```
 
 The release workflow validates Bash and PowerShell, builds the tarball and zip, verifies checksums, and creates the GitHub release with generated notes.
+
+Wait for the Release workflow to finish. Confirm that the release page contains the matching `.tar.gz`, `.zip`, and `SHA256SUMS`. Do not move or replace a published version tag.
 
 Do not upload the local `backups/`, `reports/`, or an existing `dist/` directory manually.
 

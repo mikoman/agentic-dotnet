@@ -2,7 +2,7 @@
 
 All notable changes to this project are documented here.
 
-## Unreleased
+## 1.2.0 - 2026-10-01
 
 - Replaced code review with a pinned Alibaba Open Code Review adaptation and generated shared review rules.
 - Updated Impeccable to release 4.3.1. Recorded local scope changes and its native engine dependency.
@@ -13,6 +13,8 @@ All notable changes to this project are documented here.
 - Restricted packages and bootstrap to a reviewed file allowlist.
 - Added shared Node.js validation and isolated installation tests for POSIX and Windows CI.
 - Required Node.js 18 or later for the shared maintenance scripts.
+- Fixed path comparisons for Windows short-name aliases in skill checks and installation tests.
+- Updated GitHub Actions to their Node.js 24 runtime versions. Project tests still use Node.js 22.
 
 ## 1.1.3 - 2026-09-10
 

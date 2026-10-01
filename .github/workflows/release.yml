@@ -12,10 +12,11 @@ jobs:
   validate-posix:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: '22'
+          package-manager-cache: false
       - run: node scripts/validate-skills.js && node --test tests/managed.test.js tests/sync.test.js
       - run: bash -n bootstrap.sh scripts/*.sh
       - run: ./bootstrap.sh --dry-run --target "$RUNNER_TEMP/.agentic-dotnet"
@@ -23,10 +24,11 @@ jobs:
   validate-windows:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: '22'
+          package-manager-cache: false
       - name: Validate skills and isolated installers
         shell: pwsh
         run: |
@@ -58,10 +60,11 @@ jobs:
     needs: [validate-posix, validate-windows]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: '22'
+          package-manager-cache: false
       - name: Validate tag
         shell: bash
         run: |
