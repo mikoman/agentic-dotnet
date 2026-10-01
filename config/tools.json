@@ -1,0 +1,8 @@
+{
+  "ocr": {
+    "package": "@alibaba-group/open-code-review",
+    "version": "1.12.11",
+    "sourceCommit": "a758d9cbfb689937c7857ad64b2dd66adb58c0c2",
+    "providerPolicy": "User-configured provider only. Never import harness credentials."
+  }
+}

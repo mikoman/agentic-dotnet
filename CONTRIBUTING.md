@@ -13,8 +13,13 @@ Before submitting a change:
 
 ```sh
 bash -n bootstrap.sh scripts/*.sh
+node scripts/validate-skills.js
+node --test tests/managed.test.js tests/sync.test.js
+node scripts/release-files.js
 git diff --check
 ./scripts/package.sh
 ```
 
 Also parse and exercise the PowerShell scripts on Windows or PowerShell 7, and run the relevant doctor.
+
+Review `config/release-files.json` after adding or removing distributable files. It is the explicit package and bootstrap allowlist.

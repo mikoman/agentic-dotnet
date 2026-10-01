@@ -2,6 +2,8 @@
 
 The distribution installs the same canonical configuration on macOS, Linux, and Windows. It does not install Codex, Claude Code, Copilot CLI, Git, Node, .NET, or an IDE. It configures whichever supported harnesses are already present and prepares adapters for absent harnesses.
 
+Node.js 18 or later is required on every platform. See [maintenance](MAINTENANCE.md) for optional OCR installation, reviewed source versions, and validation commands.
+
 The default destination is:
 
 - macOS/Linux: `$HOME/.agentic-dotnet`
@@ -72,16 +74,16 @@ Windows tries file symbolic links first. If the account cannot create them, the 
 - Codex receives its global `AGENTS.md`, official `dotnet/skills` marketplace plugins, shared personal skills, and Microsoft Learn MCP.
 - Claude Code receives a generated import of the canonical instructions, official marketplace plugins, linked personal skills, and Microsoft Learn MCP.
 - Copilot CLI receives global instructions, shared personal skills, and the centrally managed MCP configuration. The installer does not invent a `dotnet/skills` marketplace command when the installed Copilot version exposes no supported plugin mechanism.
-- Cursor consumes shared skills through `~/.agents/skills`; the POSIX installer also prepares its generated instruction/MCP plugin and official .NET plugin links.
+- Cursor consumes shared skills through `~/.agents/skills`. Both platform scripts generate physical local plugin deployments. The installer prepares reviewed official .NET sources when Cursor is detected. External-target plugin links are not used.
 - Kilo consumes shared skills through `~/.agents/skills`; the POSIX installer also configures its instructions, Microsoft Learn MCP, and official .NET skill paths when its config directory exists.
 
-Both platform sync scripts expose shared skills to all five harnesses. The PowerShell scripts currently configure the remaining instruction/plugin/MCP integration for Codex, Claude Code, and Copilot CLI; full Windows Cursor/Kilo adapter parity is not implied by shared skill availability.
+Both platform sync scripts expose shared skills to all five harnesses. Windows Kilo instruction/MCP support remains partial. Cursor deployment files require a fresh-session check in Customize. Files alone do not prove runtime loading.
 
 Missing harnesses produce warnings, not installation failures. Run the bootstrap again after installing a harness; the process is idempotent.
 
 ## Shared skills, including Matt Pocock's collection
 
-This package includes [ASD-STE100](skills/ASD-STE100.md), Impeccable, and the **25 main engineering/productivity skills** from [mattpocock/skills](https://github.com/mattpocock/skills). The complete inventory, source paths, pinned commit, invocation settings, and usage guide are in [skills/MATTPOCOCK.md](skills/MATTPOCOCK.md). The miscellaneous and in-progress buckets are excluded unless explicitly selected later.
+This package includes [ASD-STE100](skills/ASD-STE100.md), [Impeccable](skills/IMPECCABLE.md), [Alibaba-based code review](skills/CODE-REVIEW.md), and 24 Matt Pocock skills. The retained inventory, pins, invocation settings, and local changes are in [skills/MATTPOCOCK.md](skills/MATTPOCOCK.md). Miscellaneous and in-progress skills remain excluded.
 
 ### Restore on another machine
 
@@ -109,7 +111,7 @@ The requirement also applies to delegated agents. The parent agent must include 
 
 After sync, start a fresh session in each installed harness. Check that it can load `asd-ste100` and identify the text-output rule. Then check a normal answer for short sentences, clear actions, and preserved uncertainty. A configured path alone does not prove that a running session loaded the rule.
 
-The existing Windows Cursor/Kilo instruction limits above still apply. Shared skill discovery alone cannot impose a global writing rule. Hosted agents need their own supported instruction and skill distribution. See [the source and verification guide](skills/ASD-STE100.md).
+The Windows Kilo limits above still apply. Shared skill discovery alone cannot impose a global writing rule. Hosted agents need their own supported instruction and skill distribution. See [the source and verification guide](skills/ASD-STE100.md).
 
 ### Use the skills when needed
 

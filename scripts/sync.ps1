@@ -5,6 +5,8 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
 $UserHome = [Environment]::GetFolderPath('UserProfile')
+if ($env:AGENTIC_DOTNET_USER_HOME) { $UserHome = $env:AGENTIC_DOTNET_USER_HOME }
+$CopilotDir = if ($env:COPILOT_HOME) { $env:COPILOT_HOME } else { Join-Path $UserHome '.copilot' }
 $RootDir = if ($env:AGENTIC_DOTNET_HOME) {
     [IO.Path]::GetFullPath($env:AGENTIC_DOTNET_HOME)
 } else {
@@ -25,7 +27,8 @@ function Write-SyncWarning([string]$Message) {
 }
 
 function Backup-Path([string]$Path) {
-    if (-not (Test-Path -LiteralPath $Path)) {
+    $item = Get-Item -LiteralPath $Path -Force -ErrorAction SilentlyContinue
+    if ($null -eq $item) {
         return
     }
 
@@ -37,19 +40,31 @@ function Backup-Path([string]$Path) {
 
     $destination = Join-Path $BackupRoot $relative
     New-Item -ItemType Directory -Path (Split-Path -Parent $destination) -Force | Out-Null
-    Copy-Item -LiteralPath $Path -Destination $destination -Recurse -Force
+    if ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) {
+        # Store the target as data. Do not traverse a broken link or junction.
+        @($item.Target) | ConvertTo-Json | Set-Content -LiteralPath "$destination.link.json" -Encoding UTF8
+    } else {
+        Copy-Item -LiteralPath $Path -Destination $destination -Recurse -Force
+    }
 }
 
 function Test-IsReparsePoint([string]$Path) {
-    if (-not (Test-Path -LiteralPath $Path)) {
+    $item = Get-Item -LiteralPath $Path -Force -ErrorAction SilentlyContinue
+    if ($null -eq $item) {
         return $false
     }
-    $item = Get-Item -LiteralPath $Path -Force
     return [bool]($item.Attributes -band [IO.FileAttributes]::ReparsePoint)
 }
 
 function Remove-ManagedDestination([string]$Path) {
-    if (Test-Path -LiteralPath $Path -PathType Container) {
+    if (Test-IsReparsePoint $Path) {
+        $item = Get-Item -LiteralPath $Path -Force
+        if ($item.PSIsContainer) {
+            [IO.Directory]::Delete($Path)
+        } else {
+            [IO.File]::Delete($Path)
+        }
+    } elseif (Test-Path -LiteralPath $Path -PathType Container) {
         Remove-Item -LiteralPath $Path -Recurse -Force
     } else {
         Remove-Item -LiteralPath $Path -Force
@@ -86,10 +101,15 @@ function New-ManagedLinkOrFallback {
 
     New-Item -ItemType Directory -Path (Split-Path -Parent $Destination) -Force | Out-Null
 
-    if (Test-Path -LiteralPath $Destination) {
+    if ($null -ne (Get-Item -LiteralPath $Destination -Force -ErrorAction SilentlyContinue)) {
         if (Test-IsReparsePoint $Destination) {
             try {
-                if ((Resolve-Path -LiteralPath $Destination).Path -eq (Resolve-Path -LiteralPath $Source).Path) {
+                $item = Get-Item -LiteralPath $Destination -Force
+                $target = @($item.Target)[0]
+                if (-not [IO.Path]::IsPathRooted($target)) {
+                    $target = Join-Path (Split-Path -Parent $Destination) $target
+                }
+                if ([IO.Path]::GetFullPath($target) -eq [IO.Path]::GetFullPath($Source)) {
                     Write-Note "ok link $Destination"
                     return
                 }
@@ -182,7 +202,7 @@ foreach ($directory in @(
     (Join-Path $UserHome '.codex'),
     (Join-Path $UserHome '.claude'),
     (Join-Path $UserHome '.agents\skills'),
-    (Join-Path $UserHome '.copilot')
+    $CopilotDir
 )) {
     New-Item -ItemType Directory -Path $directory -Force | Out-Null
 }
@@ -193,8 +213,15 @@ $claudePath = $GlobalInstructions -replace '\\', '/'
 $claudeContent = "<!-- Managed by .agentic-dotnet; edit $claudePath instead. -->`r`n@$claudePath`r`n"
 Set-ManagedTextFile -Destination (Join-Path $UserHome '.claude\CLAUDE.md') -Content $claudeContent
 
-New-ManagedLinkOrFallback -Source $GlobalInstructions -Destination (Join-Path $UserHome '.copilot\copilot-instructions.md') -Mode Content
-New-ManagedLinkOrFallback -Source (Join-Path $RootDir 'adapters\copilot\mcp-config.json') -Destination (Join-Path $UserHome '.copilot\mcp-config.json') -Mode ExactCopy
+New-ManagedLinkOrFallback -Source $GlobalInstructions -Destination (Join-Path $CopilotDir 'copilot-instructions.md') -Mode Content
+New-ManagedLinkOrFallback -Source (Join-Path $RootDir 'adapters\copilot\mcp-config.json') -Destination (Join-Path $CopilotDir 'mcp-config.json') -Mode ExactCopy
+
+if (-not (Get-Command node -ErrorAction SilentlyContinue)) { throw 'Node.js 18 or later is required.' }
+& node (Join-Path $RootDir 'scripts\cursor-adapter.js')
+if ($LASTEXITCODE -ne 0) { throw 'Cursor adapter synchronization failed.' }
+& node (Join-Path $RootDir 'scripts\review-adapter.js')
+if ($LASTEXITCODE -ne 0) { throw 'Review adapter generation failed.' }
+New-ManagedLinkOrFallback -Source (Join-Path $RootDir 'adapters\code-review\rule.json') -Destination (Join-Path $UserHome '.opencodereview\rule.json') -Mode ExactCopy
 
 foreach ($skill in Get-ChildItem -LiteralPath (Join-Path $RootDir 'skills') -Directory -ErrorAction SilentlyContinue) {
     if (-not (Test-Path -LiteralPath (Join-Path $skill.FullName 'SKILL.md'))) {

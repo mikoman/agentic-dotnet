@@ -9,7 +9,7 @@ A **harness** is the application that runs an agent. This repository gives suppo
 The package contains:
 
 - One instruction source for text output, development across languages, and conditional .NET/C# rules.
-- 27 shared skills: ASD-STE100, Impeccable, and 25 Matt Pocock skills.
+- 27 shared skills: ASD-STE100, Impeccable, Alibaba-based code review, and 24 Matt Pocock skills.
 - A list of official .NET plugins to install where the harness supports them.
 - A minimal Model Context Protocol (MCP) policy for external tools.
 - Install, sync, check, and package scripts for macOS, Linux, and Windows.
@@ -41,9 +41,8 @@ Choose the harnesses that you want to use. You do not need all five.
 | Bash and standard Unix tools | To run the macOS/Linux scripts. |
 | PowerShell | To run the Windows scripts. Use PowerShell 7 where possible. The scripts target Windows PowerShell 5.1 syntax. |
 | Network access | To download the package, install official plugins, or use Microsoft Learn MCP. |
-| Node.js | To merge Kilo configuration on macOS/Linux. Some skills also use Node.js scripts. |
+| Node.js 18 or later | Required by shared install, sync, doctor, update, and package checks on all platforms. |
 | Python 3 | To run the ASD-STE100 linter or Codex's GitHub skill installer. |
-| `jq` | Recommended on macOS/Linux for plugin detection and status checks. |
 | A suitable .NET SDK | To work on .NET applications. This package does not install an SDK. |
 
 The CLI installer commands require the relevant executables on `PATH`. Sign in to each harness through its normal account process.
@@ -108,7 +107,7 @@ Use the actual archive name for another release. Continue only when the hash mat
 
 | macOS/Linux option | Windows option | Effect |
 | --- | --- | --- |
-| `--dry-run` | `-DryRun` | List planned file copies without installing harness configuration. Windows can create the empty target directory. |
+| `--dry-run` | `-DryRun` | List planned file copies without changing files or harness configuration. |
 | `--skip-plugins` | `-SkipPlugins` | Skip plugin and MCP CLI commands. Sync still prepares skills, instruction adapters, and MCP configuration files. |
 | `--no-verify` | `-NoVerify` | Skip the final doctor check. |
 | `--target PATH` | `-TargetRoot PATH` | Choose the central directory. |
@@ -167,7 +166,7 @@ The scripts use links, imports, or generated adapters to distribute the central 
 | Codex | Global `AGENTS.md`, official .NET marketplace plugins, and Microsoft Learn MCP. | `~/.agents/skills/<skill-name>` |
 | Claude Code | Global `CLAUDE.md` import, official .NET marketplace plugins, and Microsoft Learn MCP. | `~/.claude/skills/<skill-name>` |
 | GitHub Copilot CLI | Global instructions and Microsoft Learn MCP configuration. This installer does not automate official .NET plugin installation for Copilot. | `~/.agents/skills/<skill-name>` |
-| Cursor | POSIX scripts prepare a local instruction/MCP plugin and links to official .NET plugins. | `~/.agents/skills/<skill-name>` |
+| Cursor | Both platforms generate a physical local instruction/MCP plugin. The installer deploys reviewed official plugins when Cursor is detected. | `~/.agents/skills/<skill-name>` |
 | Kilo | POSIX scripts prepare global instructions, Microsoft Learn MCP, and official .NET skill paths. | `~/.agents/skills/<skill-name>` |
 
 `~` means your home directory. Windows uses the equivalent paths under your user profile.
@@ -176,7 +175,11 @@ Windows tries symbolic links first. Without link permission, sync uses generated
 
 Both platform scripts expose the shared skills to all five harnesses. The PowerShell scripts configure the remaining instructions, plugins, and MCP integration for Codex, Claude Code, and Copilot CLI.
 
-**Windows Cursor/Kilo support is partial.** Shared skill paths do not establish full Windows instruction, plugin, or MCP support for those two harnesses.
+Cursor plugins are generated deployment copies under `~/.cursor/plugins/local`. Their source remains central or in the reviewed official cache. External-target plugin symlinks are not used. Sync backs up managed deployments and refuses unreviewed local edits. Check Customize after a reload to confirm runtime loading.
+
+Windows Kilo instruction/MCP setup remains partial. Shared skill paths alone do not establish full Kilo support.
+
+Copilot adapters honor `COPILOT_HOME`. Claude `2.1.277+` can load `AGENTS.md` under its documented conditions. The existing `CLAUDE.md` import remains a compatibility adapter. See [Claude memory rules](https://code.claude.com/docs/en/memory).
 
 On macOS/Linux, Kilo setup requires an existing `~/.config/kilo` directory. Official Kilo skills use a shared cache through `skills.paths`. Kilo does not receive the official plugins' language servers through this mechanism.
 
@@ -228,8 +231,9 @@ The repository includes 27 skills. Bootstrap installs their files without a sepa
 | Collection | Purpose | Start here |
 | --- | --- | --- |
 | ASD-STE100 | Clear text for people and agents. The shared instructions require it for all authored text. | [Source and use](skills/ASD-STE100.md) |
-| Matt Pocock, 25 skills | Planning, debugging, testing, reviews, teaching, and handover documents. | [Inventory and workflow guide](skills/MATTPOCOCK.md) |
-| Impeccable | Interface design, audits, and visual changes. | [Skill instructions](skills/impeccable/SKILL.md) |
+| Matt Pocock, 24 skills | Planning, debugging, testing, teaching, and handover documents. | [Inventory and workflow guide](skills/MATTPOCOCK.md) |
+| Alibaba-based code review | Scope-aware Git review, with direct source review when OCR is unavailable. | [Source, tools, and privacy](skills/CODE-REVIEW.md) |
+| Impeccable 4.3.1 | Interface design, audits, and visual changes. | [Source and runtime](skills/IMPECCABLE.md) |
 
 ### ASD-STE100
 
@@ -265,7 +269,7 @@ The shared skill does not enable project hooks automatically. If a project needs
 
 ### Skill dependencies
 
-A skill can need tools that bootstrap does not install. Impeccable scripts need Node.js. The `wizard` and `diagnosing-bugs` templates need Bash, including Git Bash or WSL on Windows.
+A skill can need tools that bootstrap does not install. Impeccable uses a versioned native engine. Its launcher can download that engine on first use. The `wizard` and `diagnosing-bugs` templates need Bash, including Git Bash or WSL on Windows.
 
 Tracker workflows need the chosen tracker tool and account access. Matt Pocock's setup also supports local Markdown files.
 
@@ -421,6 +425,16 @@ Sync updates instructions and shared links. Install also configures supported pl
 
 For a skill-only update, `install.sh --skip-plugins` or `install.ps1 -SkipPlugins` avoids plugin CLI commands. Start a fresh session after changes.
 
+### Review tools and explicit updates
+
+The global instructions select the central `code-review` skill for review tasks. Requesting a review does not authorize fixes, commits, or publication. OCR preview includes staged, unstaged, and untracked files without a provider call.
+
+Install the optional, reviewed OCR executable with `./scripts/install.sh --with-ocr` or `.\scripts\install.ps1 -WithOcr`. Provider setup is separate. Do not send repository code to a new provider without approval. The skill can review source directly without OCR access.
+
+Audit installed official plugin versions with `./scripts/update.sh` or `.\scripts\update.ps1`. Add `--apply` or `-Apply` to update enabled native plugins after backup. Native marketplaces choose available versions. Doctor compares the result with `config/plugin-versions.json` and reports version drift. Sync does not update native plugins.
+
+See [maintenance and validation](MAINTENANCE.md) for source pins, release checks, and verification limits.
+
 ### Keep project facts in the project
 
 Use a project `AGENTS.md` for facts that source code and tooling cannot explain. Examples include unusual build commands, generated-code boundaries, database-first behavior, and deployment constraints.
@@ -511,9 +525,9 @@ This creates a `.tar.gz` and, when `zip` is available, a `.zip`. `COPYFILE_DISAB
 .\scripts\package.ps1
 ```
 
-This creates a `.zip` and its checksum. Use a clean release checkout for distribution. Package scripts exclude backups, reports, Git metadata, and existing `dist/` output.
+This creates a `.zip` and its checksum. Use a clean release checkout for distribution. Packaging and bootstrap copy only the explicit files in `config/release-files.json`. Untracked files are not included automatically. Review that allowlist when adding distributable files.
 
-GitHub Actions checks Bash, PowerShell, bootstrap dry runs, packaging, and checksums on macOS, Linux, and Windows. CI does not prove live behavior in every harness.
+GitHub Actions checks Bash, PowerShell, skill metadata, isolated synchronization, package safety, bootstrap dry runs, packaging, and checksums. These checks run on macOS, Linux, and Windows. They do not prove live behavior in every harness.
 
 | Document | Use it for |
 | --- | --- |

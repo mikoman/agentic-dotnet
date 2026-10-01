@@ -13,6 +13,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node scripts/validate-skills.js && node --test tests/managed.test.js tests/sync.test.js
       - run: bash -n bootstrap.sh scripts/*.sh
       - run: ./bootstrap.sh --dry-run --target "$RUNNER_TEMP/.agentic-dotnet"
 
@@ -20,6 +24,16 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate skills and isolated installers
+        shell: pwsh
+        run: |
+          node scripts/validate-skills.js
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          node --test tests/managed.test.js tests/sync.test.js
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Parse and exercise PowerShell
         shell: pwsh
         run: |
@@ -45,6 +59,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
       - name: Validate tag
         shell: bash
         run: |

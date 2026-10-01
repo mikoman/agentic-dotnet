@@ -1,0 +1,28 @@
+{
+  "source": "https://github.com/dotnet/skills",
+  "reviewedCommit": "4be92ceb4e2d20e6b1fe9662a59b2fff0f4c5b4f",
+  "versions": {
+    "dotnet": "0.2.4",
+    "dotnet-aspnetcore": "0.1.1",
+    "dotnet-data": "0.1.5",
+    "dotnet-nuget": "0.1.1",
+    "dotnet-msbuild": "0.1.10",
+    "dotnet-diag": "0.1.2",
+    "dotnet-upgrade": "0.1.1",
+    "dotnet-maui": "0.1.16",
+    "dotnet-blazor": "0.1.1",
+    "dotnet-ai": "0.1.6"
+  },
+  "skillDigests": {
+    "dotnet": "b1f77283de6467de940757b4885b16146c4e48df38cc6c966af15408ee65029a",
+    "dotnet-aspnetcore": "9501d5ade45f4dc912b91db4167e41c4b9ccd38f034ace39962aa7523a45f6b7",
+    "dotnet-data": "92793f34a8cf6b1bc8985034080f602e9d4bb6ed39497e26984d769402d87420",
+    "dotnet-nuget": "7bac3804523c71975c352c9c7d36044ca50e174c6574c235eba057089fc4eec6",
+    "dotnet-msbuild": "2f3e19032adf917119659f7168c9b4d6ce3a043c800f878ede5031038e33c80b",
+    "dotnet-diag": "44d540c60640a31c483071b244f07a80df0a5a32b5e477a6e69f0f073877c085",
+    "dotnet-upgrade": "191a54a6fab3e47cdfde04053143b733c62b6dd3f1e780597e3de588c6c8abc1",
+    "dotnet-maui": "707f99b4a9760921b6abf74c44ec5621602986f7c3af52f644ea6f3e015abeba",
+    "dotnet-blazor": "5223ed5b73d325d756d49ace6a04dbd1891a68af6d35febc022d5c22eeda5229",
+    "dotnet-ai": "0622328098d7248c65bc7f129313955ee3b6918f56cc4c6485cefb0ac99f911a"
+  }
+}

@@ -78,7 +78,7 @@ Personal and reviewed third-party reusable skills physically live only under `sk
 - Do not copy skill contents.
 - Do not centralize standard .NET knowledge already maintained by the official `dotnet/skills` project.
 
-The checked-in library includes [ASD-STE100](skills/ASD-STE100.md), Impeccable, and the 25 Matt Pocock engineering/productivity skills in [skills/MATTPOCOCK.md](skills/MATTPOCOCK.md). Expose the entire canonical tree, including future additions, rather than hard-coding that list in a harness adapter. Keep each complete skill directory, including `agents/openai.yaml`, references, templates, and `LICENSE`.
+The checked-in library includes ASD-STE100, Impeccable, Alibaba-based code review, and 24 Matt Pocock skills. See [maintenance](MAINTENANCE.md) for source records. Expose the canonical tree instead of hard-coding that list. Keep each complete directory, including invocation metadata, references, templates, and licenses. Preserve explicit-only restrictions. If a harness cannot enforce them, disclose that limit instead of deleting the restrictions.
 
 The existing discovery paths are:
 
@@ -104,7 +104,7 @@ An empty personal skill library is also valid for a deliberately minimal install
 - Use the harness's current official marketplace/plugin mechanism.
 - Check current status before installing anything.
 - Make installation idempotent.
-- If native plugin installation is unsupported, prefer a shallow official cache plus symlinks when the harness explicitly supports local plugins.
+- If native installation is unsupported, check local-plugin rules. Cursor requires physical deployments or links whose targets remain inside its local plugin directory. Use the generated deployment script. Do not link external cache directories into Cursor.
 - Do not copy official skills into this repository.
 - Do not install excluded testing or preview plugins automatically.
 - Report each desired plugin as installed, already present, unavailable, unsupported, or failed.

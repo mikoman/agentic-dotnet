@@ -10,28 +10,20 @@ $PackageName = "agentic-dotnet-$Version"
 $DistDir = Join-Path $RootDir 'dist'
 $StagingRoot = Join-Path ([IO.Path]::GetTempPath()) ("agentic-dotnet-package-" + [Guid]::NewGuid().ToString('N'))
 $PackageRoot = Join-Path $StagingRoot $PackageName
-$excludedRoots = @('.git', 'backups', 'reports', 'dist')
 
 try {
     New-Item -ItemType Directory -Path $PackageRoot -Force | Out-Null
     New-Item -ItemType Directory -Path $DistDir -Force | Out-Null
 
-    foreach ($file in Get-ChildItem -LiteralPath $RootDir -File -Recurse -Force) {
-        $relative = $file.FullName.Substring($RootDir.Length).TrimStart([char[]]@('\', '/'))
-        $firstSegment = ($relative -split '[\\/]')[0]
-        if ($excludedRoots -contains $firstSegment -or $file.Name -eq '.DS_Store') {
-            continue
-        }
-        $destination = Join-Path $PackageRoot $relative
-        New-Item -ItemType Directory -Path (Split-Path -Parent $destination) -Force | Out-Null
-        Copy-Item -LiteralPath $file.FullName -Destination $destination -Force
-    }
+    & node (Join-Path $RootDir 'scripts\release-files.js') --stage $PackageRoot
+    if ($LASTEXITCODE -ne 0) { throw 'Release manifest staging failed.' }
 
     $zipPath = Join-Path $DistDir "$PackageName.zip"
     if (Test-Path -LiteralPath $zipPath) {
         Remove-Item -LiteralPath $zipPath -Force
     }
-    Compress-Archive -LiteralPath $PackageRoot -DestinationPath $zipPath -CompressionLevel Optimal
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+    [IO.Compression.ZipFile]::CreateFromDirectory($PackageRoot, $zipPath, [IO.Compression.CompressionLevel]::Optimal, $true)
 
     $hash = (Get-FileHash -LiteralPath $zipPath -Algorithm SHA256).Hash.ToLowerInvariant()
     "$hash  $PackageName.zip" |

@@ -1,87 +1,72 @@
 ---
 name: code-review
-description: "Review the changes since a fixed point (commit, branch, tag, or merge-base) along two axes: Standards (does the code follow this repo's documented coding standards?) and Spec (does the code match what the originating issue/spec asked for?). Runs both reviews in parallel sub-agents and reports them side by side. Use when the user wants to review a branch, a PR, work-in-progress changes, or asks to \"review since X\"."
+description: Review committed or local Git changes with Alibaba Open Code Review. Use for code reviews, pull requests, branch comparisons, or staged and unstaged changes. Fix findings only when requested.
+license: Apache-2.0
+compatibility: OCR reviews require the ocr CLI and an approved configured model provider. Direct source review remains available without a provider.
+metadata:
+  upstream: alibaba/open-code-review
+  upstream-skill: open-code-review
+  revision: a758d9cbfb689937c7857ad64b2dd66adb58c0c2
+  version: "1.0.0-local.1"
 ---
 
-Two-axis review of the diff between `HEAD` and a fixed point the user supplies:
+# Code review
 
-- **Standards**: does the code conform to this repo's documented coding standards?
-- **Spec**: does the code faithfully implement the originating issue / spec?
+Produce evidence-backed findings for the requested Git changes. This is a central adaptation of Alibaba's Open Code Review skill.
 
-Both axes run as **parallel sub-agents** so they don't pollute each other's context, then this skill aggregates their findings.
+Use this workflow for reviews. Do not invoke it merely because a normal implementation task modifies code.
 
-The issue tracker should have been provided to you. If `docs/agents/issue-tracker.md` is missing, tell the user to run `/setup-matt-pocock-skills`.
+## Establish scope
 
-## Process
+1. Read [review policy](references/review-policy.md) and applicable repository instructions.
+2. Record the checkout, branch, HEAD, and working-tree status. Preserve existing changes and staging state.
+3. Identify the requested comparison: workspace, staged, unstaged, commit, branch, or branch plus local changes.
+4. Gather concise requirements and business context from the request and repository. An issue tracker or separate specification is not required.
 
-### 1. Pin the fixed point
+## Run the review
 
-Whatever the user said is the fixed point (a commit SHA, branch name, tag, `main`, `HEAD~5`, etc.). If they didn't specify one, ask for it.
+Check `ocr review --help` when its installed behavior is unknown. Do not install or upgrade tools during a review without authorization.
 
-Capture the diff command once: `git diff <fixed-point>...HEAD` (three-dot, so the comparison is against the merge-base). Also note the list of commits via `git log <fixed-point>..HEAD --oneline`.
+Use the repository's approved provider. Never select an external provider, copy credentials, or upload secret files to make a review work.
 
-Before going further, confirm the fixed point resolves (`git rev-parse <fixed-point>`) and the diff is non-empty. A bad ref or empty diff should fail here, not inside two parallel sub-agents.
+Use `OCR_NO_UPDATE=1` in the command environment to prevent an automatic tool update. Preview scope before a model-backed run.
 
-### 2. Identify the spec source
+| Scope | OCR arguments |
+| --- | --- |
+| All local changes | No revision arguments. Workspace mode includes staged, unstaged, and untracked files. |
+| One commit | `--commit <ref>` |
+| Branch | `--from <base> --to <branch>` |
+| Scope preview | Add `--preview`. This does not run the model. |
 
-Look for the originating spec, in this order:
+Inspect the preview for excluded files, generated material, credentials, and unrelated changes. Exclude unsafe paths before a model call.
 
-1. Issue references in the commit messages (`#123`, `Closes #45`, GitLab `!67`, etc.), fetched via the workflow in `docs/agents/issue-tracker.md`.
-2. A path the user passed as an argument.
-3. A spec file under `docs/`, `specs/`, or `.scratch/` matching the branch name or feature.
-4. If nothing is found, ask the user where the spec is. If they say there isn't one, the **Spec** sub-agent will skip and report "no spec available".
+OCR has no staged-only or unstaged-only flag in the validated version. For these scopes, review the corresponding Git diff directly. Inspect relevant untracked files separately. Never stage, stash, or reset files to change the tool's scope.
 
-### 3. Identify the standards sources
+For a branch-plus-local review, account for both comparisons. Do not mistake the committed branch diff for all work in progress.
 
-Anything in the repo that documents how code should be written, such as `CODING_STANDARDS.md` or `CONTRIBUTING.md`.
+For a configured model-backed review, use:
 
-On top of whatever the repo documents, the Standards axis always carries the **smell baseline** below: a fixed set of Fowler code smells (_Refactoring_, ch.3) that applies even when a repo documents nothing. Two rules bind it:
+```sh
+OCR_NO_UPDATE=1 ocr review --audience agent --background "requirements and constraints" --format json --output <private-result-file> <scope-arguments>
+```
 
-- **The repo overrides.** A documented repo standard always wins; where it endorses something the baseline would flag, suppress the smell.
-- **Always a judgement call.** Each smell is a labelled heuristic ("possible Feature Envy"), never a hard violation. Like any standard here, skip anything tooling already enforces.
+Keep output in a private temporary directory or ignored report directory. Read all findings. Do not truncate output with `head` or `tail`.
 
-Each smell reads *what it is* → *how to fix*; match it against the diff:
+In PowerShell, set `$env:OCR_NO_UPDATE = '1'` before the command. Omit the POSIX environment prefix there.
 
-- **Mysterious Name**: a function, variable, or type whose name doesn't reveal what it does or holds. → rename it; if no honest name comes, the design's murky.
-- **Duplicated Code**: the same logic shape appears in more than one hunk or file in the change. → extract the shared shape, call it from both.
-- **Feature Envy**: a method that reaches into another object's data more than its own. → move the method onto the data it envies.
-- **Data Clumps**: the same few fields or params keep travelling together (a type wanting to be born). → bundle them into one type, pass that.
-- **Primitive Obsession**: a primitive or string standing in for a domain concept that deserves its own type. → give the concept its own small type.
-- **Repeated Switches**: the same `switch`/`if`-cascade on the same type recurs across the change. → replace with polymorphism, or one map both sites share.
-- **Shotgun Surgery**: one logical change forces scattered edits across many files in the diff. → gather what changes together into one module.
-- **Divergent Change**: one file or module is edited for several unrelated reasons. → split so each module changes for one reason.
-- **Speculative Generality**: abstraction, parameters, or hooks added for needs the spec doesn't have. → delete it; inline back until a real need shows.
-- **Message Chains**: long `a.b().c().d()` navigation the caller shouldn't depend on. → hide the walk behind one method on the first object.
-- **Middle Man**: a class or function that mostly just delegates onward. → cut it, call the real target direct.
-- **Refused Bequest**: a subclass or implementer that ignores or overrides most of what it inherits. → drop the inheritance, use composition.
+Use the existing provider and budget settings. Set a bounded budget for a large review. Report skipped files and budget limits.
 
-### 4. Spawn both sub-agents in parallel
+If OCR or its provider is unavailable, report that limit. Continue with a direct source review when possible. Never label that fallback as a successful OCR run.
 
-**Standards sub-agent prompt** should include:
+For advanced flags, rule precedence, and recovery, consult [the pinned upstream reference](references/upstream.md). The local scope, credential, and installation rules above take priority over its automatic-install and staging advice.
 
-- The full diff command and commit list.
-- The list of standards-source files you found in step 3, **plus the smell baseline from step 3** pasted in full (the sub-agent has no other access to it).
-- The brief: "Report, per file/hunk where relevant, (a) every place the diff violates a documented standard: cite the standard (file + the rule); and (b) any baseline smell you spot: name it and quote the hunk. Distinguish hard violations from judgement calls: documented-standard breaches can be hard, but baseline smells are always judgement calls, and a documented repo standard overrides the baseline. Skip anything tooling enforces. Under 400 words."
+## Validate and report
 
-**Spec sub-agent prompt** should include:
+- Check command status, warnings, failed files, skipped files, and budget exhaustion. Exit code zero alone does not prove complete coverage.
+- Verify each finding against current source and the requested behavior. Resolve missing line positions before citing them.
+- Report actionable findings by severity, with a file, line, consequence, and correction. Separate uncertain concerns from confirmed defects.
+- Omit unsupported style preferences and false positives. Do not disclose the tool's raw `thinking` field.
+- State the exact reviewed scope, coverage limits, and validation performed. A partial review must not become a clean bill of health.
+- Fix only when the user requested fixes. Check each fix with the repository's existing tools. Commit or publish only when separately authorized.
 
-- The diff command and commit list.
-- The path or fetched contents of the spec.
-- The brief: "Report: (a) requirements the spec asked for that are missing or partial; (b) behaviour in the diff that wasn't asked for (scope creep); (c) requirements that look implemented but where the implementation looks wrong. Quote the spec line for each finding. Under 400 words."
-
-If the spec is missing, skip the Spec sub-agent and note this in the final report.
-
-### 5. Aggregate
-
-Present the two reports under `## Standards` and `## Spec` headings, verbatim or lightly cleaned. Do **not** merge or rerank findings, because the two axes are deliberately separate (see _Why two axes_).
-
-End with a one-line summary: total findings per axis, and the worst issue _within each axis_ (if any). Don't pick a single winner across axes: that's the reranking the separation exists to prevent.
-
-## Why two axes
-
-A change can pass one axis and fail the other:
-
-- Code that follows every standard but implements the wrong thing → **Standards pass, Spec fail.**
-- Code that does exactly what the issue asked but breaks the project's conventions → **Spec pass, Standards fail.**
-
-Reporting them separately stops one axis from masking the other.
+Success means the requested scope is accounted for and each retained finding has evidence. Report incomplete coverage explicitly.

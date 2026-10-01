@@ -1,11 +1,11 @@
 # Matt Pocock skills: installed source and usage
 
-This repository vendors the **25 engineering and productivity skills** in the main [mattpocock/skills](https://github.com/mattpocock/skills) collection. The user selected this collection on 2026-09-08; miscellaneous and in-progress skills are not installed.
+This repository retains **24 engineering and productivity skills** from [mattpocock/skills](https://github.com/mattpocock/skills). The user selected the main collection on 2026-09-08. On 2026-10-01, the user replaced its review skill with [Alibaba-based code review](CODE-REVIEW.md). Miscellaneous and in-progress skills remain excluded.
 
 - Source commit: [`3cca18b368ae95cdbdebbff572ccafa662551015`](https://github.com/mattpocock/skills/tree/3cca18b368ae95cdbdebbff572ccafa662551015), dated 2026-09-04.
 - Selection: the 25 paths in that revision's [plugin manifest](https://github.com/mattpocock/skills/blob/3cca18b368ae95cdbdebbff572ccafa662551015/.claude-plugin/plugin.json), version `1.2.3`.
 - Licence: MIT, copyright (c) 2026 Matt Pocock. The upstream `LICENSE` is included in every installed skill directory.
-- Local changes: none to upstream skill files. Only the root licence was added to each skill directory for redistribution. Upstream category directories are flattened into `skills/<skill-name>/` for existing central discovery; each skill's internal structure is unchanged.
+- Local changes: `research` permits direct research without delegation. `implement` and `prototype` require authorization for commits and publication. `resolving-merge-conflicts` preserves unrelated staging and unresolved intent. `tdd` accepts an existing approved test boundary. Invocation policies remain unchanged. Each directory includes its upstream license. Upstream category directories are flattened into `skills/<skill-name>/`.
 - Installation: Codex's bundled `install-skill-from-github.py`, with the commit above and `--dest` pointing to this repository's `skills/` directory. No separate marketplace plugin was registered.
 
 ## Inventory
@@ -15,7 +15,6 @@ Paths in this table are relative to the pinned upstream repository. Local links 
 | Skill | Upstream directory | Invocation | Use when |
 | --- | --- | --- | --- |
 | [ask-matt](ask-matt/SKILL.md) | `skills/engineering/ask-matt` | Explicit | Choose a skill or workflow for the task. |
-| [code-review](code-review/SKILL.md) | `skills/engineering/code-review` | Automatic or explicit | Review changes against repository standards and the originating specification. |
 | [codebase-design](codebase-design/SKILL.md) | `skills/engineering/codebase-design` | Automatic or explicit | Design module interfaces and testable boundaries. |
 | [diagnosing-bugs](diagnosing-bugs/SKILL.md) | `skills/engineering/diagnosing-bugs` | Automatic or explicit | Investigate a difficult bug or performance regression. |
 | [domain-modeling](domain-modeling/SKILL.md) | `skills/engineering/domain-modeling` | Automatic or explicit | Clarify domain terminology and record glossary entries or decisions. |
@@ -46,6 +45,6 @@ All five local harnesses share these files: Codex, Copilot CLI, Cursor, and Kilo
 
 Use `$ask-matt` in Codex, `/ask-matt` where slash commands are supported, or request the skill by name. The collection's usual planning flow is `grill-with-docs` → `to-spec` → `to-tickets` → `implement`; choose only the steps needed for the work. Individual tools such as `diagnosing-bugs`, `tdd`, and `handoff` can be requested directly. Companion skills remain available because the entire main collection is installed.
 
-Run `setup-matt-pocock-skills` in each application repository when adopting its engineering workflows. It writes project-specific configuration; central installation does not execute it or impose an issue tracker on every project. Existing user instructions, repository constraints, and harness permissions continue to govern skill use.
+Run `setup-matt-pocock-skills` only when adopting workflows that need its project-specific tracker and document conventions. Ordinary code reviews do not require it. Central installation does not execute it. Existing instructions, repository constraints, and harness permissions govern skill use.
 
 See [PORTABLE_INSTALL.md](../PORTABLE_INSTALL.md#shared-skills-including-matt-pococks-collection) for restoration, pinned downloads, optional skills, backups, updates, dependencies, and verification. See [INSTALL_NEW_HARNESS.md](../INSTALL_NEW_HARNESS.md) when connecting another harness. Update this source record whenever the installed selection, revision, or local modifications change.

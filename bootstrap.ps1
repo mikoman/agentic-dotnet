@@ -28,14 +28,13 @@ function Write-Note([string]$Message) {
 function Copy-Package {
     $timestamp = Get-Date -Format 'yyyy-MM-dd-HHmmss'
     $backupRoot = Join-Path $TargetRoot "backups\bootstrap-$timestamp\package-overwrite"
-    $excludedRoots = @('.git', 'backups', 'reports', 'dist')
+    $releaseFiles = @(& node (Join-Path $SourceRoot 'scripts\release-files.js') --list)
+    if ($LASTEXITCODE -ne 0) { throw 'Release manifest validation failed.' }
+    & node (Join-Path $SourceRoot 'scripts\release-files.js') --check-target $TargetRoot
+    if ($LASTEXITCODE -ne 0) { throw 'Package target validation failed.' }
 
-    foreach ($file in Get-ChildItem -LiteralPath $SourceRoot -File -Recurse -Force) {
-        $relative = $file.FullName.Substring($SourceRoot.Length).TrimStart([char[]]@('\', '/'))
-        $firstSegment = ($relative -split '[\\/]')[0]
-        if ($excludedRoots -contains $firstSegment -or $file.Name -eq '.DS_Store') {
-            continue
-        }
+    foreach ($relative in $releaseFiles) {
+        $file = Get-Item -LiteralPath (Join-Path $SourceRoot $relative) -Force
 
         $destination = Join-Path $TargetRoot $relative
         if (Test-Path -LiteralPath $destination -PathType Leaf) {
@@ -68,7 +67,6 @@ function Copy-Package {
 
 if ($SourceRoot -ne $TargetRoot) {
     Write-Note "installing package into $TargetRoot"
-    New-Item -ItemType Directory -Path $TargetRoot -Force | Out-Null
     Copy-Package
 } else {
     Write-Note "package is already at $TargetRoot"

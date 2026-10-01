@@ -35,8 +35,10 @@ copy_package() {
   local backup_dir relative source destination
   backup_dir="${TARGET_DIR}/backups/bootstrap-$(date '+%Y-%m-%d-%H%M%S')/package-overwrite"
 
-  while IFS= read -r -d '' source; do
-    relative="${source#${SOURCE_DIR}/}"
+  node "${SOURCE_DIR}/scripts/release-files.js" >/dev/null
+  node "${SOURCE_DIR}/scripts/release-files.js" --check-target "$TARGET_DIR"
+  while IFS= read -r relative; do
+    source="${SOURCE_DIR}/${relative}"
     destination="${TARGET_DIR}/${relative}"
 
     if [ -f "$destination" ] && cmp -s "$source" "$destination"; then
@@ -57,9 +59,7 @@ copy_package() {
     mkdir -p "$(dirname "$destination")"
     cp -p "$source" "$destination"
   done < <(
-    find "$SOURCE_DIR" \
-      \( -type d \( -name .git -o -name backups -o -name reports -o -name dist \) -prune \) -o \
-      \( -type f ! -name '.DS_Store' -print0 \)
+    node "${SOURCE_DIR}/scripts/release-files.js" --list
   )
 }
 

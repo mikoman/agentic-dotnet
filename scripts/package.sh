@@ -18,18 +18,13 @@ trap cleanup EXIT
 
 mkdir -p "${DIST_DIR}" "${STAGING_ROOT}/${PACKAGE_NAME}"
 
-(cd "$ROOT_DIR" && tar \
-  --exclude='./.git' \
-  --exclude='./backups' \
-  --exclude='./reports' \
-  --exclude='./dist' \
-  --exclude='./.DS_Store' \
-  -cf - .) | (cd "${STAGING_ROOT}/${PACKAGE_NAME}" && tar -xf -)
+node "${ROOT_DIR}/scripts/release-files.js" --stage "${STAGING_ROOT}/${PACKAGE_NAME}"
 
 tar -C "$STAGING_ROOT" -czf "${DIST_DIR}/${PACKAGE_NAME}.tar.gz" "$PACKAGE_NAME"
 
 if command -v zip >/dev/null 2>&1; then
-  (cd "$STAGING_ROOT" && zip -qr "${DIST_DIR}/${PACKAGE_NAME}.zip" "$PACKAGE_NAME")
+  (cd "$STAGING_ROOT" && zip -qr "${STAGING_ROOT}/${PACKAGE_NAME}.zip" "$PACKAGE_NAME")
+  mv "${STAGING_ROOT}/${PACKAGE_NAME}.zip" "${DIST_DIR}/${PACKAGE_NAME}.zip"
 else
   printf '[package] WARN: zip not found; Windows zip package not created\n' >&2
 fi

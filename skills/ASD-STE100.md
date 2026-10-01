@@ -8,7 +8,7 @@ The central skill directory contains the complete upstream snapshot of [danyuchn
 - License: [MIT](asd-ste100/LICENSE), copyright 2026 Dustin Yuchen Teng.
 - Review date: 2026-09-10.
 
-The seven upstream files retain their original content. They include `SKILL.md`, `README.md`, `LICENSE`, both example files, the writing rules, and the linter.
+All seven upstream files are retained. The local entry moves the version field into `metadata.version` for portable metadata. Its writing guidance is unchanged.
 
 ## Shared use
 

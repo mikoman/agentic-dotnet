@@ -2,6 +2,18 @@
 
 All notable changes to this project are documented here.
 
+## Unreleased
+
+- Replaced code review with a pinned Alibaba Open Code Review adaptation and generated shared review rules.
+- Updated Impeccable to release 4.3.1. Recorded local scope changes and its native engine dependency.
+- Clarified task authorization, review scope, language selection, and workflow boundaries.
+- Added reviewed plugin versions and an explicit update command with backups.
+- Replaced Cursor external plugin links with checked, backed-up deployments.
+- Added bounded doctor checks and custom Copilot home support.
+- Restricted packages and bootstrap to a reviewed file allowlist.
+- Added shared Node.js validation and isolated installation tests for POSIX and Windows CI.
+- Required Node.js 18 or later for the shared maintenance scripts.
+
 ## 1.1.3 - 2026-09-10
 
 - Added ASD-STE100 version 0.4.0 from a pinned upstream commit, with its MIT license, references, examples, and linter.
