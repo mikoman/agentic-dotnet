@@ -2,6 +2,11 @@
 
 All notable changes to this project are documented here.
 
+## 1.2.1 - 2026-10-01
+
+- Added OMP harness integration: global `AGENTS.md` link into `~/.omp/agent`, shared skills through `~/.agents/skills`, official `dotnet/skills` plugins through OMP's Claude-compatible marketplace, and Microsoft Learn MCP merged into `~/.omp/agent/mcp.json` with other entries preserved.
+- Included OMP merge tests in release packages and Windows release checks.
+
 ## 1.2.0 - 2026-10-01
 
 - Replaced code review with a pinned Alibaba Open Code Review adaptation and generated shared review rules.

@@ -27,7 +27,7 @@ function pluginStatus(harness) {
   let entries;
   try {
     const state = JSON.parse(result.stdout);
-    entries = harness === 'codex' ? state.installed : state;
+    entries = harness === 'codex' ? state.installed : harness === 'omp' ? state.marketplace : state;
     if (!Array.isArray(entries)) { throw new Error('Invalid status shape'); }
   } catch {
     report('WARN', harness + ' plugin status unknown: invalid response');
@@ -39,14 +39,24 @@ function pluginStatus(harness) {
     const entry = entries.find(item => harness === 'codex'
       ? item.name === name && item.marketplaceName === 'dotnet-agent-skills' && item.installed
       : item.id === name + '@dotnet-agent-skills');
-    if (!entry || entry.enabled !== true) {
+    const record = harness === 'omp' ? (entry?.entries || []).find(item => item.scope === 'user') : entry;
+    const version = record?.version;
+    if (!record || (harness !== 'omp' && entry.enabled !== true)) {
       report('WARN', harness + ' plugin not confirmed enabled: ' + name);
     } else {
-      report(entry.version === reviewed[name] ? 'PASS' : 'WARN', harness + ' ' + name + ' ' + entry.version + ' (CLI status)');
+      report(version === reviewed[name] ? 'PASS' : 'WARN', harness + ' ' + name + ' ' + version + ' (CLI status)');
       let exact = false;
-      try { exact = treeDigest(path.join(home, '.' + harness, 'plugins/cache/dotnet-agent-skills', name, entry.version, 'skills')) === baseline.skillDigests?.[name]; } catch {}
+      const skillsCache = harness === 'omp'
+        ? path.join(record.installPath, 'skills')
+        : path.join(home, '.' + harness, 'plugins/cache/dotnet-agent-skills', name, version, 'skills');
+      try { exact = treeDigest(skillsCache) === baseline.skillDigests?.[name]; } catch {}
       report(exact ? 'PASS' : 'WARN', harness + ' ' + name + ' reviewed skill content');
     }
+  }
+  if (harness === 'omp') {
+    const skills = command('omp', ['config', 'get', 'skills.enableAgentsUser', '--json']);
+    report(skills.status === 0 && /"value":\s*true/.test(skills.stdout) ? 'PASS' : 'WARN', 'OMP portable skill discovery ' + (skills.status === 0 ? '(skills.enableAgentsUser)' : 'unavailable or unverified'));
+    return;
   }
   const mcp = command(harness, ['mcp', 'get', 'microsoft-learn']);
   report(mcp.status === 0 && mcp.stdout.includes('https://learn.microsoft.com/api/mcp') ? 'PASS' : 'WARN', harness + ' Microsoft Learn registration (not a connectivity test)');
@@ -59,6 +69,13 @@ const claude = read(path.join(home, '.claude/CLAUDE.md'));
 report(claude.includes('@' + canonical.replace(/\\/g, '/')) ? 'PASS' : 'FAIL', 'Claude import adapter (file configuration)');
 equalFile(path.join(copilotHome, 'copilot-instructions.md'), canonical, 'Copilot instruction adapter');
 equalFile(path.join(copilotHome, 'mcp-config.json'), path.join(root, 'adapters/copilot/mcp-config.json'), 'Copilot MCP adapter');
+equalFile(path.join(home, '.omp/agent/AGENTS.md'), canonical, 'OMP instruction adapter');
+{
+  let ompMcp = null;
+  try { ompMcp = JSON.parse(read(path.join(home, '.omp/agent/mcp.json'))); } catch {}
+  const learn = ompMcp && ompMcp.mcpServers && ompMcp.mcpServers['microsoft-learn'];
+  report(learn && learn.type === 'http' && learn.url === 'https://learn.microsoft.com/api/mcp' ? 'PASS' : 'FAIL', 'OMP Microsoft Learn MCP (file configuration)');
+}
 equalFile(path.join(home, '.opencodereview/rule.json'), path.join(root, 'adapters/code-review/rule.json'), 'OCR review rules');
 
 let skillCount = 0;
@@ -95,8 +112,22 @@ const sdk = command('dotnet', ['--list-sdks']);
 report(sdk.status === 0 && sdk.stdout.trim() ? 'PASS' : 'WARN', 'installed .NET SDK discovery');
 pluginStatus('codex');
 pluginStatus('claude');
+pluginStatus('omp');
 const copilot = command('copilot', ['skill', 'list', '--json']);
 report(copilot.status === 0 ? 'PASS' : 'WARN', 'Copilot skill discovery ' + (copilot.status === 0 ? '(CLI response)' : 'unavailable or unverified'));
+const ompList = command('omp', ['skill', 'list', '--json']);
+if (ompList.status !== 0) {
+  report('WARN', 'OMP skill discovery (runtime list) unavailable or unverified');
+} else {
+  let missing = [];
+  try {
+    const listed = new Set(JSON.parse(ompList.stdout).skills.map(item => item.name));
+    missing = fs.readdirSync(path.join(root, 'skills'), { withFileTypes: true })
+      .filter(item => item.isDirectory() && fs.existsSync(path.join(root, 'skills', item.name, 'SKILL.md')) && !listed.has(item.name))
+      .map(item => item.name);
+  } catch { missing = null; }
+  report(missing && missing.length === 0 ? 'PASS' : 'WARN', 'OMP skill discovery (runtime list)' + (missing === null ? ': invalid response' : missing.length ? ': missing ' + missing.join(', ') : ''));
+}
 const ocr = command('ocr', ['version']);
 report(ocr.status === 0 ? 'PASS' : 'WARN', 'OCR executable ' + (ocr.status === 0 ? 'available' : 'unavailable'));
 report('WARN', 'OCR model-provider access is not tested. Credentials are not inspected.');

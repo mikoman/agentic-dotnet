@@ -37,7 +37,7 @@ Run these checks from the central root:
 
 ```sh
 node scripts/validate-skills.js
-node --test tests/managed.test.js tests/sync.test.js
+node --test tests/managed.test.js tests/omp-mcp-merge.test.js tests/sync.test.js
 node scripts/release-files.js
 ```
 
@@ -45,7 +45,7 @@ Run the platform sync, install, and doctor scripts after configuration changes. 
 
 The skill validator checks this repository's metadata conventions, entry-file links, and 14 explicit-only policies. It is not a general YAML validator. `--portable` reports unsupported extension fields. Do not remove invocation restrictions to make an export pass. Confirm equivalent destination support first.
 
-The isolated tests cover Cursor deployment, backups, local-edit preservation, release allowlists, command time limits, custom Copilot homes, and repeated synchronization. Windows CI exercises the PowerShell sync path. POSIX tests do not prove Windows junction behavior.
+The isolated tests cover Cursor deployment, backups, local-edit preservation, release allowlists, command time limits, custom Copilot homes, OMP MCP merging, and repeated synchronization. Windows CI exercises the PowerShell sync path. POSIX tests do not prove Windows junction behavior.
 
 Doctor distinguishes file configuration, native CLI status, and unverified runtime behavior. Its command timeout defaults to ten seconds. Set `AGENTIC_DOTNET_CHECK_TIMEOUT_MS` between 100 and 60000 when needed. Credentials are not inspected.
 

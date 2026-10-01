@@ -81,6 +81,15 @@ rm -f "$claude_adapter"
 ensure_symlink "$GLOBAL_INSTRUCTIONS" "${COPILOT_DIR}/copilot-instructions.md"
 ensure_symlink "${ROOT_DIR}/adapters/copilot/mcp-config.json" "${COPILOT_DIR}/mcp-config.json"
 
+if [ ! -d "${USER_HOME}/.omp/agent" ]; then
+  mkdir -p "${USER_HOME}/.omp/agent"
+  chmod 700 "${USER_HOME}/.omp/agent" 2>/dev/null || true
+fi
+ensure_symlink "$GLOBAL_INSTRUCTIONS" "${USER_HOME}/.omp/agent/AGENTS.md"
+if ! node "${ROOT_DIR}/scripts/omp-mcp-merge.js" "${USER_HOME}/.omp/agent/mcp.json" "$BACKUP_DIR"; then
+  warn 'OMP MCP merge failed'
+fi
+
 if [ -d "${USER_HOME}/.config/kilo" ]; then
   ensure_symlink "$GLOBAL_INSTRUCTIONS" "${USER_HOME}/.config/kilo/AGENTS.md"
 

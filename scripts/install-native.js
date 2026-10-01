@@ -49,4 +49,40 @@ for (const harness of ['codex', 'claude']) {
     checked(harness, args);
   }
 }
+function configureOmp() {
+  const available = run('omp', ['--version']);
+  if (available.error?.code === 'ENOENT' || (process.platform === 'win32' && available.status === 1 && !available.stdout)) {
+    warn('omp unavailable. Its file adapters are prepared.'); return;
+  }
+  if (available.status !== 0) { failures++; warn('omp availability check failed'); return; }
+  const marketplaces = run('omp', ['plugin', 'marketplace', 'list'], 60000);
+  if (marketplaces.status !== 0) { failures++; warn('omp marketplace status unknown. No change attempted.'); return; }
+  if (!marketplaces.stdout.includes('dotnet-agent-skills')) {
+    if (run('omp', ['plugin', 'marketplace', 'add', 'dotnet/skills'], 120000).status !== 0) {
+      failures++; warn('omp marketplace registration failed'); return;
+    }
+  }
+  const result = run('omp', ['plugin', 'list', '--json'], 60000);
+  if (result.status !== 0) { failures++; warn('omp plugin status unknown. No change attempted.'); return; }
+  let entries;
+  try {
+    const state = JSON.parse(result.stdout);
+    entries = state.marketplace;
+    if (!Array.isArray(entries)) { throw new Error(); }
+  }
+  catch { failures++; warn('omp status is invalid. No plugin changes attempted.'); return; }
+  for (const name of plugins()) {
+    const existing = entries.find(entry => entry.id === name + '@dotnet-agent-skills');
+    const installed = existing && Array.isArray(existing.entries) && existing.entries.some(item => item.scope === 'user');
+    if (installed) {
+      console.log('[install] Preserve omp/' + name + ' (installed)');
+      continue;
+    }
+    if (run('omp', ['plugin', 'install', '--scope', 'user', name + '@dotnet-agent-skills'], 120000).status !== 0) {
+      failures++; warn('omp plugin install failed: ' + name);
+    }
+  }
+  console.log('[install] omp Microsoft Learn MCP is managed by scripts/sync.sh in ~/.omp/agent/mcp.json');
+}
+configureOmp();
 process.exitCode = failures ? 1 : 0;

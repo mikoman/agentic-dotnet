@@ -36,6 +36,9 @@ test('isolated sync repairs links, respects COPILOT_HOME, and preserves unrelate
     assert.equal(samePath(link, skill), true);
     assert.equal(fs.readFileSync(unrelated, 'utf8'), 'unrelated instructions');
     assert.equal(fs.readFileSync(path.join(env.COPILOT_HOME, 'copilot-instructions.md'), 'utf8').includes('# Global coding-agent instructions'), true);
+    assert.equal(fs.readFileSync(path.join(userHome, '.omp/agent/AGENTS.md'), 'utf8').includes('# Global coding-agent instructions'), true);
+    const ompMcp = JSON.parse(fs.readFileSync(path.join(userHome, '.omp/agent/mcp.json'), 'utf8'));
+    assert.deepEqual(ompMcp.mcpServers['microsoft-learn'], { type: 'http', url: 'https://learn.microsoft.com/api/mcp' });
     assert.equal(fs.lstatSync(path.join(userHome, '.cursor/plugins/local/agentic-dotnet')).isSymbolicLink(), false);
   }
 });

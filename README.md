@@ -2,7 +2,7 @@
 
 [![Build status](https://github.com/mikoman/agentic-dotnet/actions/workflows/validate.yml/badge.svg)](https://github.com/mikoman/agentic-dotnet/actions/workflows/validate.yml)
 
-`agentic-dotnet` keeps your local coding-agent configuration in one directory. It supports Codex, Claude Code, GitHub Copilot CLI, Cursor, and Kilo.
+`agentic-dotnet` keeps your local coding-agent configuration in one directory. It supports Codex, Claude Code, GitHub Copilot CLI, Cursor, Kilo, and OMP.
 
 A **harness** is the application that runs an agent. This repository gives supported harnesses shared instructions, reusable skills, and selected external tools.
 
@@ -32,7 +32,7 @@ The package configures existing applications. Install your agent applications, d
 
 ## Requirements
 
-Choose the harnesses that you want to use. You do not need all five.
+Choose the harnesses that you want to use. You do not need all six.
 
 | Requirement | When you need it |
 | --- | --- |
@@ -87,18 +87,18 @@ If you run bootstrap from another directory, it copies the package to the centra
 6. Open a terminal in the extracted directory.
 7. Run the bootstrap command for your platform from the previous section.
 
-For release `v1.2.0`, these commands calculate the archive hash:
+For release `v1.2.1`, these commands calculate the archive hash:
 
 ```sh
 # macOS
-shasum -a 256 agentic-dotnet-1.2.0.tar.gz
+shasum -a 256 agentic-dotnet-1.2.1.tar.gz
 
 # Linux
-sha256sum agentic-dotnet-1.2.0.tar.gz
+sha256sum agentic-dotnet-1.2.1.tar.gz
 ```
 
 ```powershell
-Get-FileHash .\agentic-dotnet-1.2.0.zip -Algorithm SHA256
+Get-FileHash .\agentic-dotnet-1.2.1.zip -Algorithm SHA256
 ```
 
 Use the actual archive name for another release. Continue only when the hash matches.
@@ -168,12 +168,13 @@ The scripts use links, imports, or generated adapters to distribute the central 
 | GitHub Copilot CLI | Global instructions and Microsoft Learn MCP configuration. This installer does not automate official .NET plugin installation for Copilot. | `~/.agents/skills/<skill-name>` |
 | Cursor | Both platforms generate a physical local instruction/MCP plugin. The installer deploys reviewed official plugins when Cursor is detected. | `~/.agents/skills/<skill-name>` |
 | Kilo | POSIX scripts prepare global instructions, Microsoft Learn MCP, and official .NET skill paths. | `~/.agents/skills/<skill-name>` |
+| OMP | Global `AGENTS.md`, official .NET marketplace plugins, and Microsoft Learn MCP merged into `~/.omp/agent/mcp.json`. | `~/.agents/skills/<skill-name>` |
 
 `~` means your home directory. Windows uses the equivalent paths under your user profile.
 
 Windows tries symbolic links first. Without link permission, sync uses generated instruction files and directory junctions for skills.
 
-Both platform scripts expose the shared skills to all five harnesses. The PowerShell scripts configure the remaining instructions, plugins, and MCP integration for Codex, Claude Code, and Copilot CLI.
+Both platform scripts expose the shared skills to all six harnesses. The PowerShell scripts configure the remaining instructions, plugins, and MCP integration for Codex, Claude Code, OMP, and Copilot CLI.
 
 Cursor plugins are generated deployment copies under `~/.cursor/plugins/local`. Their source remains central or in the reviewed official cache. External-target plugin symlinks are not used. Sync backs up managed deployments and refuses unreviewed local edits. Check Customize after a reload to confirm runtime loading.
 
@@ -182,6 +183,8 @@ Windows Kilo instruction/MCP setup remains partial. Shared skill paths alone do 
 Copilot adapters honor `COPILOT_HOME`. Claude `2.1.277+` can load `AGENTS.md` under its documented conditions. The existing `CLAUDE.md` import remains a compatibility adapter. See [Claude memory rules](https://code.claude.com/docs/en/memory).
 
 On macOS/Linux, Kilo setup requires an existing `~/.config/kilo` directory. Official Kilo skills use a shared cache through `skills.paths`. Kilo does not receive the official plugins' language servers through this mechanism.
+
+OMP consumes the central sources through its native mechanisms. `~/.omp/agent/AGENTS.md` links the global instructions and shadows other user-level context files. OMP discovers shared skills from `~/.agents/skills` through its `agents` provider (`skills.enableAgentsUser`). Official .NET plugins install through OMP's Claude-compatible plugin marketplace as `dotnet-agent-skills`. Sync merges the Microsoft Learn MCP entry into `~/.omp/agent/mcp.json` and preserves other servers and settings. Named OMP profiles (`omp --profile <name>`) use a separate agent directory and are not configured by these scripts.
 
 Missing applications produce warnings. Install the application separately. Then run bootstrap again.
 
@@ -219,6 +222,8 @@ Then check the running harness:
 4. Check a normal answer for clear sentences and preserved technical meaning.
 
 In Copilot CLI, use `/skills reload`, `/skills list`, and `/skills info asd-ste100`. See the [Copilot skill guide](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-skills).
+
+In OMP, run `omp skill list` and `omp plugin list`. The skill list should include `asd-ste100` and `ask-matt` with the `agents:user` source, and the plugin list should show each `*@dotnet-agent-skills` entry.
 
 In Cursor, open the Skills view under Customize. See the [Cursor skill guide](https://cursor.com/docs/skills). Use the current skill picker or reload command in other harnesses.
 
@@ -503,6 +508,7 @@ There is no automatic uninstall script. To disconnect a harness:
 | Windows cannot create a skill link. | Check symbolic-link or directory-junction permissions. Inspect the sync warning. |
 | A plugin or MCP check fails. | Check the harness CLI version, account access, and network connection. Inspect the installer output. |
 | Kilo configuration does not update. | Check Node.js and the existing Kilo config directory on macOS/Linux. |
+| An OMP named profile misses the rules. | The scripts target the default profile (`~/.omp/agent`). Rerun sync for the profile's own agent directory or launch without `--profile`. |
 | An update leaves an old plugin. | Uninstall that plugin through its harness. Selection changes do not uninstall existing plugins. |
 
 Keep backups and local reports outside Git. Never include credentials, private keys, or tokens in a public issue. Follow [SECURITY.md](SECURITY.md) for security reports.

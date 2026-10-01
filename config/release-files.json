@@ -22,6 +22,7 @@
   "adapters/cursor/mcp.json",
   "adapters/cursor/rules/global-dotnet.mdc",
   "adapters/kilo/README.md",
+  "adapters/omp/README.md",
   "bootstrap.ps1",
   "bootstrap.sh",
   "config/mcp.yaml",
@@ -41,6 +42,7 @@
   "scripts/install.sh",
   "scripts/kilo-config-merge.js",
   "scripts/managed.js",
+  "scripts/omp-mcp-merge.js",
   "scripts/official-cache.js",
   "scripts/package.ps1",
   "scripts/package.sh",
@@ -224,5 +226,6 @@
   "skills/writing-for-agents/SKILL.md",
   "skills/writing-for-agents/agents/openai.yaml",
   "tests/managed.test.js",
+  "tests/omp-mcp-merge.test.js",
   "tests/sync.test.js"
 ]

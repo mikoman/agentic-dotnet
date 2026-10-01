@@ -202,6 +202,7 @@ foreach ($directory in @(
     (Join-Path $UserHome '.codex'),
     (Join-Path $UserHome '.claude'),
     (Join-Path $UserHome '.agents\skills'),
+    (Join-Path $UserHome '.omp\agent'),
     $CopilotDir
 )) {
     New-Item -ItemType Directory -Path $directory -Force | Out-Null
@@ -216,11 +217,15 @@ Set-ManagedTextFile -Destination (Join-Path $UserHome '.claude\CLAUDE.md') -Cont
 New-ManagedLinkOrFallback -Source $GlobalInstructions -Destination (Join-Path $CopilotDir 'copilot-instructions.md') -Mode Content
 New-ManagedLinkOrFallback -Source (Join-Path $RootDir 'adapters\copilot\mcp-config.json') -Destination (Join-Path $CopilotDir 'mcp-config.json') -Mode ExactCopy
 
+New-ManagedLinkOrFallback -Source $GlobalInstructions -Destination (Join-Path $UserHome '.omp\agent\AGENTS.md') -Mode Content
+
 if (-not (Get-Command node -ErrorAction SilentlyContinue)) { throw 'Node.js 18 or later is required.' }
 & node (Join-Path $RootDir 'scripts\cursor-adapter.js')
 if ($LASTEXITCODE -ne 0) { throw 'Cursor adapter synchronization failed.' }
 & node (Join-Path $RootDir 'scripts\review-adapter.js')
 if ($LASTEXITCODE -ne 0) { throw 'Review adapter generation failed.' }
+& node (Join-Path $RootDir 'scripts\omp-mcp-merge.js') (Join-Path $UserHome '.omp\agent\mcp.json') $BackupRoot
+if ($LASTEXITCODE -ne 0) { Write-SyncWarning 'OMP MCP merge failed' }
 New-ManagedLinkOrFallback -Source (Join-Path $RootDir 'adapters\code-review\rule.json') -Destination (Join-Path $UserHome '.opencodereview\rule.json') -Mode ExactCopy
 
 foreach ($skill in Get-ChildItem -LiteralPath (Join-Path $RootDir 'skills') -Directory -ErrorAction SilentlyContinue) {

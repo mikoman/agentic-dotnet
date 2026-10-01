@@ -28,6 +28,7 @@ excluded_by_default:
 harnesses:
   codex: plugin-marketplace
   claude: plugin-marketplace
+  omp: plugin-marketplace
   cursor: generated-local-plugin-deployments
   copilot: instructions-skills-and-mcp
   kilo: official-skills-via-skills.paths

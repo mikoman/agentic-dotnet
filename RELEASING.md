@@ -9,7 +9,7 @@ A push to `main` runs validation. It does not publish a release or update the la
 1. Update `VERSION`.
 2. Update `CHANGELOG.md`.
    Review `config/release-files.json` for every added or removed distributable file.
-   Run `node scripts/validate-skills.js` and `node --test tests/managed.test.js tests/sync.test.js`.
+   Run `node scripts/validate-skills.js` and `node --test tests/managed.test.js tests/omp-mcp-merge.test.js tests/sync.test.js`.
 3. Run `./scripts/package.sh`.
 4. Verify `dist/SHA256SUMS`.
 5. Run `./scripts/doctor.sh` with an appropriate development root.

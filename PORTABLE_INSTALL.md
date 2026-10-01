@@ -76,8 +76,9 @@ Windows tries file symbolic links first. If the account cannot create them, the 
 - Copilot CLI receives global instructions, shared personal skills, and the centrally managed MCP configuration. The installer does not invent a `dotnet/skills` marketplace command when the installed Copilot version exposes no supported plugin mechanism.
 - Cursor consumes shared skills through `~/.agents/skills`. Both platform scripts generate physical local plugin deployments. The installer prepares reviewed official .NET sources when Cursor is detected. External-target plugin links are not used.
 - Kilo consumes shared skills through `~/.agents/skills`; the POSIX installer also configures its instructions, Microsoft Learn MCP, and official .NET skill paths when its config directory exists.
+- OMP receives its user `AGENTS.md`, official `dotnet/skills` marketplace plugins through its Claude-compatible marketplace, shared personal skills through `~/.agents/skills`, and Microsoft Learn MCP merged into `~/.omp/agent/mcp.json`.
 
-Both platform sync scripts expose shared skills to all five harnesses. Windows Kilo instruction/MCP support remains partial. Cursor deployment files require a fresh-session check in Customize. Files alone do not prove runtime loading.
+Both platform sync scripts expose shared skills to all six harnesses. Windows Kilo instruction/MCP support remains partial. Cursor deployment files require a fresh-session check in Customize. Files alone do not prove runtime loading.
 
 Missing harnesses produce warnings, not installation failures. Run the bootstrap again after installing a harness; the process is idempotent.
 
@@ -98,6 +99,7 @@ There is one physical copy under `<central-root>/skills/<skill-name>/`. Both syn
 | GitHub Copilot CLI | `.agents/skills/<skill-name>` |
 | Cursor | `.agents/skills/<skill-name>` |
 | Kilo | `.agents/skills/<skill-name>` |
+| OMP | `.agents/skills/<skill-name>` |
 
 These are symlinks, or directory junctions on Windows when required. Current [Copilot CLI](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-skills), [Cursor](https://cursor.com/docs/skills), and [Kilo](https://kilo.ai/docs/customize/skills) documentation describes shared skill discovery. Installing the same collection again through a native plugin or a per-harness installer would create competing installations.
 
@@ -115,7 +117,7 @@ The Windows Kilo limits above still apply. Shared skill discovery alone cannot i
 
 ### Use the skills when needed
 
-In Codex, the new skills are available on the next turn; if an existing session retains an old list, start a new session. Other harnesses may need a new session or reload. In Copilot CLI use `/skills reload`, `/skills list`, and `/skills info ask-matt`; in Cursor check Customize → Skills; in Kilo use `/reload` or start a new session. Check the skill picker/list where the installed harness provides one.
+In Codex, the new skills are available on the next turn; if an existing session retains an old list, start a new session. Other harnesses may need a new session or reload. In Copilot CLI use `/skills reload`, `/skills list`, and `/skills info ask-matt`; in Cursor check Customize → Skills; in Kilo use `/reload` or start a new session; in OMP run `omp skill list` or start a new session. Check the skill picker/list where the installed harness provides one.
 
 Invoke `$ask-matt` in Codex, `/ask-matt` in a harness with slash commands, or ask the agent to use the `ask-matt` skill. It helps choose a workflow. Before using the engineering workflows in an application repository, invoke `setup-matt-pocock-skills` **inside that repository**. It configures the issue tracker, triage labels, and domain document layout, using project-local `docs/agents/*.md` and an existing `AGENTS.md` or `CLAUDE.md`. Review that project's proposed setup in its own session. The global installation only makes the skills available.
 

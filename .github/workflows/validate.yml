@@ -59,7 +59,7 @@ jobs:
         run: |
           node scripts/validate-skills.js
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          node --test tests/managed.test.js tests/sync.test.js
+          node --test tests/managed.test.js tests/omp-mcp-merge.test.js tests/sync.test.js
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Parse PowerShell
         shell: pwsh
