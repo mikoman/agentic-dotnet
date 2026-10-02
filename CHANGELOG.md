@@ -2,6 +2,13 @@
 
 All notable changes to this project are documented here.
 
+## 1.2.2 - 2026-10-02
+
+- Added one controlled retry for GitNexus invalid UTF-8 and FTS indexing failures. Preserved `--index-only` and serialized indexing.
+- Required agents to distinguish failed refreshes, old status results, and successful indexes with degraded search.
+- Added a GitNexus 1.6.12 minimum-version check to the shared doctor command, with version-comparison tests. GitNexus installation remains separate.
+- Documented the reviewed CLI version, Node.js requirements, recovery limits, and long-running MCP restart requirement.
+
 ## 1.2.1 - 2026-10-01
 
 - Added OMP harness integration: global `AGENTS.md` link into `~/.omp/agent`, shared skills through `~/.agents/skills`, official `dotnet/skills` plugins through OMP's Claude-compatible marketplace, and Microsoft Learn MCP merged into `~/.omp/agent/mcp.json` with other entries preserved.

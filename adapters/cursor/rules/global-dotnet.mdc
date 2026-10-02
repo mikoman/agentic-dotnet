@@ -23,9 +23,12 @@ alwaysApply: true
 - At each coding task's start, identify the repository root, branch, HEAD, and existing working-tree changes.
 - Before exploring or editing code in a clean checkout, run `gitnexus analyze --index-only` from its root. Repeat for each new or switched clean checkout, even when an index exists.
 - Every indexing or refresh command MUST include `--index-only`. Never run plain `analyze`, `setup`, or install hooks for indexing.
-- Check indexing results and warnings. Run `gitnexus status` in that checkout. Confirm the indexed commit matches HEAD and existing changes remain unchanged.
+- Check the analyze exit code and warnings before running `gitnexus status`. A failed refresh remains failed even if status labels the old index up to date. Confirm the indexed commit matches HEAD and existing changes remain unchanged.
 - Refresh before graph use after source edits, branch changes, pulls, merges, or rebases. Index the actual working tree. Never reset, stash, or discard changes to make indexing possible.
-- Serialize refreshes per checkout. An unchanged HEAD or an up-to-date label does not establish freshness after uncommitted edits.
+- Serialize refreshes per checkout, including retries. Respect active index locks. Wait for the owner or defer. Never delete its lock or stop its process. An unchanged HEAD or an up-to-date label does not establish freshness after uncommitted edits.
+- If analyze fails, record the command, resolved executable, version, checkout, exit code, and error. For `Failed calling LOWER: Invalid UTF-8` or FTS inconsistency errors, retry `gitnexus analyze --index-only` once. Start the retry only after the process ends and no other refresh is active. Let GitNexus select its recovery path.
+- If the retry fails, report both attempts and use source searches. Do not re-encode source files, delete indexes, disable FTS, or upgrade tools without task authorization. Missing tools, unsupported flags, permission failures, and storage failures are not retry cases.
+- If analyze succeeds but reports degraded full-text search (FTS), report that limit separately. Use `rg` for keyword search. Use the graph only after freshness checks. Do not describe the whole refresh as failed or search as fully available.
 - Use GitNexus for unfamiliar implementations, callers, execution flows, and cross-file impact. Use `query`, `context`, or `impact` as appropriate.
 - Select the current checkout explicitly through MCP `repo` or CLI `--repo`. Use its absolute path when names collide.
 - Use `rg` for exact text, configuration, unsupported files, and small searches. Read actual source to verify graph results.

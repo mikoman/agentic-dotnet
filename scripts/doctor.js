@@ -3,7 +3,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { root, home, copilotHome, plugins, run, exists, samePath, treeDigest } = require('./managed');
+const { root, home, copilotHome, plugins, run, stableVersionAtLeast, exists, samePath, treeDigest } = require('./managed');
 const { sources, matches } = require('./cursor-adapter');
 const totals = { PASS: 0, WARN: 0, FAIL: 0 };
 const timeout = Number(process.env.AGENTIC_DOTNET_CHECK_TIMEOUT_MS || 10000);
@@ -107,6 +107,17 @@ for (const [name, source] of sources()) {
   report(valid ? 'PASS' : 'FAIL', 'Cursor deployment ' + name + ' (files only)');
 }
 report('WARN', 'Doctor does not inspect Cursor runtime. Check Customize after changes.');
+
+const gitnexusBaseline = JSON.parse(read(path.join(root, 'config/tools.json'))).gitnexus.minimumVersion;
+const gitnexus = command('gitnexus', ['--version']);
+const gitnexusVersion = (gitnexus.stdout || '').trim();
+if (gitnexus.status !== 0) {
+  report('WARN', 'GitNexus version unknown: unavailable, failed, or timed out');
+} else if (!stableVersionAtLeast(gitnexusVersion, gitnexusBaseline)) {
+  report('WARN', 'GitNexus version is older, prerelease, or unknown. Use a stable version at least ' + gitnexusBaseline + '.');
+} else {
+  report('PASS', 'GitNexus ' + gitnexusVersion + ' meets the minimum version (not an index health check)');
+}
 
 const sdk = command('dotnet', ['--list-sdks']);
 report(sdk.status === 0 && sdk.stdout.trim() ? 'PASS' : 'WARN', 'installed .NET SDK discovery');

@@ -12,6 +12,7 @@ The central source controls instructions, skills, desired plugins, and generated
 | ASD-STE100 | [Source, metadata change, and limits](skills/ASD-STE100.md) |
 | Official .NET plugins | `config/plugins.yaml` selects plugins. `config/plugin-versions.json` records reviewed versions and the cache commit. |
 | Optional review executable | `config/tools.json` records the reviewed OCR package. |
+| GitNexus CLI | `config/tools.json` records the minimum stable version. Installation remains separate. See [Use GitNexus](README.md#use-gitnexus). |
 
 Do not replace pins with an unreviewed `main` snapshot. Download candidates separately. Compare them with the installed source. Preserve local changes and licenses. Back up replaced files.
 
@@ -45,9 +46,11 @@ Run the platform sync, install, and doctor scripts after configuration changes. 
 
 The skill validator checks this repository's metadata conventions, entry-file links, and 14 explicit-only policies. It is not a general YAML validator. `--portable` reports unsupported extension fields. Do not remove invocation restrictions to make an export pass. Confirm equivalent destination support first.
 
-The isolated tests cover Cursor deployment, backups, local-edit preservation, release allowlists, command time limits, custom Copilot homes, OMP MCP merging, and repeated synchronization. Windows CI exercises the PowerShell sync path. POSIX tests do not prove Windows junction behavior.
+The isolated tests cover Cursor deployment, backups, local-edit preservation, release allowlists, command time limits, GitNexus version comparisons, custom Copilot homes, OMP MCP merging, and repeated synchronization. Windows CI exercises the PowerShell sync path. POSIX tests do not prove Windows junction behavior.
 
 Doctor distinguishes file configuration, native CLI status, and unverified runtime behavior. Its command timeout defaults to ten seconds. Set `AGENTIC_DOTNET_CHECK_TIMEOUT_MS` between 100 and 60000 when needed. Credentials are not inspected.
+
+Doctor reads the GitNexus version but does not refresh an index. After a CLI upgrade, use a temporary checkout to test initial and incremental `gitnexus analyze --index-only` runs. Check exit codes, warnings, status, and unchanged source files. A small smoke test does not prove that a failure in another repository is fixed. Follow the [central recovery rules](instructions/global.md#gitnexus-indexing-and-code-discovery) for that repository.
 
 ## Release safety
 

@@ -1,4 +1,9 @@
 {
+  "gitnexus": {
+    "package": "gitnexus",
+    "minimumVersion": "1.6.12",
+    "managedInstallation": false
+  },
   "ocr": {
     "package": "@alibaba-group/open-code-review",
     "version": "1.12.11",

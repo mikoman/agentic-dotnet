@@ -7,7 +7,7 @@ const os = require('os');
 const path = require('path');
 const { deploy, snapshot, matches } = require('../scripts/cursor-adapter');
 const { releaseFiles, stage, checkTarget } = require('../scripts/release-files');
-const { run, samePath } = require('../scripts/managed');
+const { run, samePath, stableVersionAtLeast } = require('../scripts/managed');
 
 function fixture(t) {
   const directory = fs.mkdtempSync(path.join(fs.realpathSync(os.tmpdir()), 'agentic-test-'));
@@ -20,6 +20,17 @@ function write(directory, name, text) {
   fs.writeFileSync(file, text);
   return file;
 }
+
+test('GitNexus version check rejects older, prerelease, and unknown versions', () => {
+  for (const version of ['1.6.9', '1.6.11', '0.9.99', '1.6.12-rc.1', '1.6.13-rc.62', '', 'unknown', '1.6', '1.6.12 error']) {
+    assert.equal(stableVersionAtLeast(version, '1.6.12'), false, version);
+  }
+  for (const version of ['1.6.12', '1.6.13', '1.6.100', '1.10.0', '2.0.0']) {
+    assert.equal(stableVersionAtLeast(version, '1.6.12'), true, version);
+  }
+  assert.equal(stableVersionAtLeast('1.6.12', 'invalid'), false);
+  assert.equal(stableVersionAtLeast('9007199254740992.0.0', '1.6.12'), false);
+});
 
 test('path comparison resolves Windows short-name aliases through the native filesystem', t => {
   const shortName = String.raw`C:\Users\RUNNER~1\AppData\Local\Temp\central\skills\code-review`;

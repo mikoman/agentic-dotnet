@@ -87,18 +87,18 @@ If you run bootstrap from another directory, it copies the package to the centra
 6. Open a terminal in the extracted directory.
 7. Run the bootstrap command for your platform from the previous section.
 
-For release `v1.2.1`, these commands calculate the archive hash:
+For release `v1.2.2`, these commands calculate the archive hash:
 
 ```sh
 # macOS
-shasum -a 256 agentic-dotnet-1.2.1.tar.gz
+shasum -a 256 agentic-dotnet-1.2.2.tar.gz
 
 # Linux
-sha256sum agentic-dotnet-1.2.1.tar.gz
+sha256sum agentic-dotnet-1.2.2.tar.gz
 ```
 
 ```powershell
-Get-FileHash .\agentic-dotnet-1.2.1.zip -Algorithm SHA256
+Get-FileHash .\agentic-dotnet-1.2.2.zip -Algorithm SHA256
 ```
 
 Use the actual archive name for another release. Continue only when the hash matches.
@@ -315,12 +315,12 @@ The installer still uses the .NET plugin selection in `config/plugins.yaml`. It 
 
 GitNexus builds an index of code relationships. The [central GitNexus rules](instructions/global.md#gitnexus-indexing-and-code-discovery) tell agents when to index, search, and refresh a checkout.
 
-This package distributes those rules. It does not install GitNexus or register a GitNexus MCP server.
+This package distributes those rules. It does not install GitNexus or register a GitNexus MCP server. `config/tools.json` records the minimum stable version, **1.6.12**. Doctor warns about older, prerelease, missing, or unrecognized versions. A version check does not prove index health.
 
-For a separate CLI installation, follow the [official installation guide](https://github.com/abhigyanpatwari/GitNexus#quick-start). With a supported Node.js version available:
+For a separate CLI installation, follow the [official installation guide](https://github.com/abhigyanpatwari/GitNexus#quick-start). GitNexus 1.6.12 requires Node.js `^22.18.0 || >=24.11.0`. Its requirement is separate from this package's Node.js 18 minimum. Inspect the installed version before an upgrade. To install the reviewed stable version on macOS, Linux, or Windows:
 
 ```sh
-npm install --global gitnexus
+npm install --global gitnexus@1.6.12
 gitnexus --version
 ```
 
@@ -334,6 +334,10 @@ gitnexus status
 Always keep `--index-only`. Plain indexing and setup commands can create competing instructions, skills, or hooks.
 
 Keep each index in its own checkout. Check freshness after source changes or branch changes. When GitNexus is unavailable or cannot index relevant files, use source searches and compiler tools.
+
+For invalid UTF-8 or FTS errors, follow the bounded recovery procedure in the [central GitNexus rules](instructions/global.md#gitnexus-indexing-and-code-discovery). The [upstream incremental-index issue](https://github.com/abhigyanpatwari/GitNexus/issues/3031) records a matching failure. It does not by itself prove that source files have invalid encoding. [Version 1.6.12](https://github.com/abhigyanpatwari/GitNexus/releases/tag/v1.6.12) includes index-lock and database-checkpoint fixes. It is not a guarantee against every FTS failure.
+
+`npx gitnexus` can resolve an existing executable. Switching from `gitnexus` to `npx gitnexus` does not by itself establish a different version or fix an index. Restart long-running GitNexus MCP sessions after an upgrade so they load the new executable.
 
 The CLI supports this workflow without MCP. Review the upstream [license](https://github.com/abhigyanpatwari/GitNexus/blob/main/LICENSE) and [commercial options](https://github.com/abhigyanpatwari/GitNexus#enterprise) before commercial adoption.
 

@@ -39,6 +39,21 @@ function run(command, args, timeout = 15000, options = {}) {
   return spawnSync(command, args, settings);
 }
 
+function stableVersionAtLeast(actual, minimum) {
+  function parse(value) {
+    if (typeof value !== 'string' || !/^\d+\.\d+\.\d+$/.test(value)) { return null; }
+    const parts = value.split('.').map(Number);
+    return parts.every(Number.isSafeInteger) ? parts : null;
+  }
+  const version = parse(actual);
+  const baseline = parse(minimum);
+  if (!version || !baseline) { return false; }
+  for (let index = 0; index < baseline.length; index++) {
+    if (version[index] !== baseline[index]) { return version[index] > baseline[index]; }
+  }
+  return true;
+}
+
 function exists(file) {
   try { fs.lstatSync(file); return true; } catch (error) {
     if (error.code === 'ENOENT') { return false; }
@@ -74,4 +89,4 @@ function treeDigest(directory) {
   return crypto.createHash('sha256').update(JSON.stringify(entries)).digest('hex');
 }
 
-module.exports = { root, home, copilotHome, plugins, run, exists, samePath, files, digest, treeDigest };
+module.exports = { root, home, copilotHome, plugins, run, stableVersionAtLeast, exists, samePath, files, digest, treeDigest };
