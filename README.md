@@ -9,7 +9,7 @@ A **harness** is the application that runs an agent. This repository gives suppo
 The package contains:
 
 - One instruction source for text output, development across languages, and conditional .NET/C# rules.
-- 28 shared skills: ASD-STE100, J-Space, Impeccable, Alibaba-based code review, and 24 Matt Pocock skills.
+- 22 shared skills: ASD-STE100, J-Space, Impeccable, Alibaba-based code review, and 18 Matt Pocock skills.
 - A list of official .NET plugins to install where the harness supports them.
 - A minimal Model Context Protocol (MCP) policy for external tools.
 - Install, sync, check, and package scripts for macOS, Linux, and Windows.
@@ -87,18 +87,18 @@ If you run bootstrap from another directory, it copies the package to the centra
 6. Open a terminal in the extracted directory.
 7. Run the bootstrap command for your platform from the previous section.
 
-For release `v1.3.0`, these commands calculate the archive hash:
+For release `v1.3.1`, these commands calculate the archive hash:
 
 ```sh
 # macOS
-shasum -a 256 agentic-dotnet-1.3.0.tar.gz
+shasum -a 256 agentic-dotnet-1.3.1.tar.gz
 
 # Linux
-sha256sum agentic-dotnet-1.3.0.tar.gz
+sha256sum agentic-dotnet-1.3.1.tar.gz
 ```
 
 ```powershell
-Get-FileHash .\agentic-dotnet-1.3.0.zip -Algorithm SHA256
+Get-FileHash .\agentic-dotnet-1.3.1.zip -Algorithm SHA256
 ```
 
 Use the actual archive name for another release. Continue only when the hash matches.
@@ -217,13 +217,13 @@ This scan reports files. It does not delete application files. Without a directo
 Then check the running harness:
 
 1. Start a fresh agent session.
-2. Check that its skill list contains `asd-ste100`, `j-space`, and `ask-matt`.
+2. Check that its skill list contains `asd-ste100`, `j-space`, and `grilling`.
 3. Ask it to identify the shared text-output and J-Space rules.
 4. Check a normal answer for clear sentences and preserved technical meaning.
 
 In Copilot CLI, use `/skills reload`, `/skills list`, and `/skills info asd-ste100`. See the [Copilot skill guide](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-skills).
 
-In OMP, run `omp skill list` and `omp plugin list`. The skill list should include `asd-ste100` and `ask-matt` with the `agents:user` source, and the plugin list should show each `*@dotnet-agent-skills` entry.
+In OMP, run `omp skill list` and `omp plugin list`. The skill list should include `asd-ste100`, `j-space`, and `grilling` with the `agents:user` source. The plugin list should show each `*@dotnet-agent-skills` entry.
 
 In Cursor, open the Skills view under Customize. See the [Cursor skill guide](https://cursor.com/docs/skills). Use the current skill picker or reload command in other harnesses.
 
@@ -231,13 +231,13 @@ Correct file paths prove configuration. They do not prove that every running age
 
 ## Use the shared skills
 
-The repository includes 28 skills. Bootstrap installs their files without a separate download from each skill author.
+The repository includes 22 skills. Bootstrap installs their files without a separate download from each skill author.
 
 | Collection | Purpose | Start here |
 | --- | --- | --- |
 | ASD-STE100 | Clear text for people and agents. The shared instructions require it for all authored text. | [Source and use](skills/ASD-STE100.md) |
 | J-Space Cognition Suite | Task state, source evidence, verification, and recovery across skill workflows. | [Source and use](skills/J-SPACE.md) |
-| Matt Pocock, 24 skills | Planning, debugging, testing, teaching, and handover documents. | [Inventory and workflow guide](skills/MATTPOCOCK.md) |
+| Matt Pocock, 18 skills | Specialist planning, debugging, testing, teaching, and agent-document workflows. | [Inventory and overlap review](skills/MATTPOCOCK.md) |
 | Alibaba-based code review | Scope-aware Git review, with direct source review when OCR is unavailable. | [Source, tools, and privacy](skills/CODE-REVIEW.md) |
 | Impeccable 4.3.1 | Interface design, audits, and visual changes. | [Source and runtime](skills/IMPECCABLE.md) |
 
@@ -270,7 +270,9 @@ Check [source and verification details](skills/J-SPACE.md) for the pinned revisi
 
 ### Matt Pocock skills
 
-Use `$ask-matt` in Codex or `/ask-matt` in a harness with slash commands. You can also ask the agent to use the skill by name.
+Request a retained skill by name, such as `$grilling` or `$tdd` in Codex. J-Space supplies shared task control.
+Use `grilling` with `domain-modeling` when a planning interview needs glossary or ADR updates.
+The [overlap review](skills/MATTPOCOCK.md#overlap-review) records the six removed skills and their replacements.
 
 Before adopting the engineering workflows, run `setup-matt-pocock-skills` inside the application repository. That skill configures the project's issue tracker, triage labels, and domain documents.
 

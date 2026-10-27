@@ -84,7 +84,7 @@ Missing harnesses produce warnings, not installation failures. Run the bootstrap
 
 ## Shared skills, including Matt Pocock's collection
 
-This package includes [ASD-STE100](skills/ASD-STE100.md), [J-Space](skills/J-SPACE.md), [Impeccable](skills/IMPECCABLE.md), [Alibaba-based code review](skills/CODE-REVIEW.md), and 24 Matt Pocock skills. The retained inventory, pins, invocation settings, and local changes are in [skills/MATTPOCOCK.md](skills/MATTPOCOCK.md). Miscellaneous and in-progress skills remain excluded.
+This package includes [ASD-STE100](skills/ASD-STE100.md), [J-Space](skills/J-SPACE.md), [Impeccable](skills/IMPECCABLE.md), [Alibaba-based code review](skills/CODE-REVIEW.md), and 18 Matt Pocock skills. The retained inventory, overlap decisions, pins, invocation settings, and local changes are in [skills/MATTPOCOCK.md](skills/MATTPOCOCK.md). Miscellaneous and in-progress skills remain excluded.
 
 ### Restore on another machine
 
@@ -129,15 +129,17 @@ Start a fresh session and check skill discovery and one representative task in e
 
 ### Use the skills when needed
 
-In Codex, the new skills are available on the next turn; if an existing session retains an old list, start a new session. Other harnesses may need a new session or reload. In Copilot CLI use `/skills reload`, `/skills list`, and `/skills info ask-matt`; in Cursor check Customize → Skills; in Kilo use `/reload` or start a new session; in OMP run `omp skill list` or start a new session. Check the skill picker/list where the installed harness provides one.
+In Codex, the new skills are available on the next turn; if an existing session retains an old list, start a new session. Other harnesses may need a new session or reload. In Copilot CLI use `/skills reload`, `/skills list`, and `/skills info grilling`; in Cursor check Customize → Skills; in Kilo use `/reload` or start a new session; in OMP run `omp skill list` or start a new session. Check the skill picker/list where the installed harness provides one.
 
-Invoke `$ask-matt` in Codex, `/ask-matt` in a harness with slash commands, or ask the agent to use the `ask-matt` skill. It helps choose a workflow. Before using the engineering workflows in an application repository, invoke `setup-matt-pocock-skills` **inside that repository**. It configures the issue tracker, triage labels, and domain document layout, using project-local `docs/agents/*.md` and an existing `AGENTS.md` or `CLAUDE.md`. Review that project's proposed setup in its own session. The global installation only makes the skills available.
+Request a retained specialist by name. Use `grilling` with `domain-modeling` when an interview needs glossary or ADR updates. J-Space controls task execution and continuation state.
+Before adopting tracker and domain-document conventions, invoke `setup-matt-pocock-skills` **inside the application repository**.
+It configures project-local `docs/agents/*.md` and an existing `AGENTS.md` or `CLAUDE.md`. The global installation makes the skills available.
 
 The included Bash templates in `wizard` and `diagnosing-bugs` need Bash when invoked, including Git Bash or WSL on Windows. Tracker workflows need the chosen tracker tooling and authorization; local Markdown is supported. Skill discovery alone does not install those dependencies or execute the templates.
 
 ### Add selected skills later
 
-First inspect the desired skill and its supporting files at a specific upstream commit, check for name collisions, and identify any companion skills it invokes. Keep each skill as a complete directory directly under the central `skills/` tree. For example, these commands restore `ask-matt` only if its central directory is missing; it is already included in this package.
+First inspect the desired skill and its supporting files at a specific upstream commit, check for name collisions, and identify any companion skills it invokes. Keep each skill as a complete directory directly under the central `skills/` tree. For example, these commands restore `tdd` only if its central directory is missing; it is already included in this package.
 
 macOS/Linux, with Codex's bundled installer:
 
@@ -146,10 +148,10 @@ agentic_root="${AGENTIC_DOTNET_HOME:-$HOME/.agentic-dotnet}"
 matt_ref=3cca18b368ae95cdbdebbff572ccafa662551015
 python3 "$HOME/.codex/skills/.system/skill-installer/scripts/install-skill-from-github.py" \
   --repo mattpocock/skills --ref "$matt_ref" \
-  --path skills/engineering/ask-matt \
+  --path skills/engineering/tdd \
   --dest "$agentic_root/skills" && \
 curl --fail --location "https://raw.githubusercontent.com/mattpocock/skills/$matt_ref/LICENSE" \
-  --output "$agentic_root/skills/ask-matt/LICENSE"
+  --output "$agentic_root/skills/tdd/LICENSE"
 ```
 
 Windows:
@@ -159,11 +161,11 @@ $AgenticRoot = if ($env:AGENTIC_DOTNET_HOME) { $env:AGENTIC_DOTNET_HOME } else {
 $MattRef = '3cca18b368ae95cdbdebbff572ccafa662551015'
 py "$HOME\.codex\skills\.system\skill-installer\scripts\install-skill-from-github.py" `
   --repo mattpocock/skills --ref $MattRef `
-  --path skills/engineering/ask-matt `
+  --path skills/engineering/tdd `
   --dest (Join-Path $AgenticRoot 'skills')
 if ($LASTEXITCODE -ne 0) { throw 'Skill installation failed; preserve the existing directory and inspect the error.' }
 Invoke-WebRequest "https://raw.githubusercontent.com/mattpocock/skills/$MattRef/LICENSE" `
-  -OutFile (Join-Path $AgenticRoot 'skills/ask-matt/LICENSE')
+  -OutFile (Join-Path $AgenticRoot 'skills/tdd/LICENSE')
 ```
 
 Use the actual configured Codex home if it differs from the default. Replace the `--path` value and licence destination with the chosen skill's paths. Multiple directories can follow `--path`. For an explicitly requested miscellaneous skill, an example at this pinned commit is `skills/misc/scaffold-exercises`; for an unfinished skill, use its reviewed `skills/in-progress/<name>` path. Include `LICENSE` from the same upstream revision in every added skill directory. Record the added skill, source path, and commit in `skills/MATTPOCOCK.md`.
@@ -174,7 +176,9 @@ If Codex or Python is unavailable, clone/download the pinned upstream revision i
 
 The downloader refuses existing destination directories. For an update, download the reviewed revision to a staging directory first, compare it with the installed skills, and move each replaced central directory into `backups/mattpocock-update-<timestamp>/` before installing its replacement. Preserve local edits, update the source record and licences, and select any new/retired skills explicitly. Normal bootstrap restores the vendored snapshot; it does not track upstream `main` or run `npx skills update`.
 
-After an addition or update, run all three scripts from the central root:
+Both sync scripts remove stale managed skill links after a central skill directory is removed. They preserve unrelated links and regular directories.
+
+After an addition, removal, or update, run all three scripts from the central root:
 
 ```sh
 ./scripts/sync.sh

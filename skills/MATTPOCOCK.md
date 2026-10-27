@@ -1,25 +1,47 @@
 # Matt Pocock skills: installed source and usage
 
-This repository retains **24 engineering and productivity skills** from [mattpocock/skills](https://github.com/mattpocock/skills). The user selected the main collection on 2026-09-08. On 2026-10-01, the user replaced its review skill with [Alibaba-based code review](CODE-REVIEW.md). Miscellaneous and in-progress skills remain excluded.
+This repository retains **18 engineering and productivity skills** from [mattpocock/skills](https://github.com/mattpocock/skills).
+The user selected the main collection on 2026-09-08. On 2026-10-01, its review skill gave way to [Alibaba-based code review](CODE-REVIEW.md).
+The overlap review on 2026-10-27 removed six more skills. Miscellaneous and in-progress skills remain excluded.
 
 - Source commit: [`3cca18b368ae95cdbdebbff572ccafa662551015`](https://github.com/mattpocock/skills/tree/3cca18b368ae95cdbdebbff572ccafa662551015), dated 2026-09-04.
-- Selection: the 25 paths in that revision's [plugin manifest](https://github.com/mattpocock/skills/blob/3cca18b368ae95cdbdebbff572ccafa662551015/.claude-plugin/plugin.json), version `1.2.3`.
+- Selection: 18 retained paths from that revision's [25-skill plugin manifest](https://github.com/mattpocock/skills/blob/3cca18b368ae95cdbdebbff572ccafa662551015/.claude-plugin/plugin.json), version `1.2.3`.
 - Licence: MIT, copyright (c) 2026 Matt Pocock. The upstream `LICENSE` is included in every installed skill directory.
-- Local changes: `research` permits direct research without delegation. `implement` and `prototype` require authorization for commits and publication. `resolving-merge-conflicts` preserves unrelated staging and unresolved intent. `tdd` accepts an existing approved test boundary. Invocation policies remain unchanged. Each directory includes its upstream license. Upstream category directories are flattened into `skills/<skill-name>/`.
+- Local changes: `research` permits direct research without delegation. `prototype` requires authorization for commits and publication. `resolving-merge-conflicts` preserves unrelated staging and unresolved intent. `tdd` accepts an existing approved test boundary. The setup template refers directly to retained domain skills. Invocation policies remain unchanged for retained skills. Each directory includes its upstream license. Upstream category directories are flattened into `skills/<skill-name>/`.
 - Installation: Codex's bundled `install-skill-from-github.py`, with the commit above and `--dest` pointing to this repository's `skills/` directory. No separate marketplace plugin was registered.
 
-## Inventory
+## Overlap review
 
-Paths in this table are relative to the pinned upstream repository. Local links are relative to this document. **Explicit** skills are intended to be requested by the user; **automatic or explicit** skills can also be selected by an agent when relevant. The upstream frontmatter and `agents/openai.yaml` invocation policies are retained; enforcement depends on the harness.
+The review covered all 24 installed Matt Pocock entries, their skill calls, J-Space, and the other shared and installed specialist workflows.
+A retained skill supplies a distinct procedure or deliverable. J-Space supplies shared task control and evidence records.
+Impeccable supplies UI design procedures. ASD-STE100 supplies text rules. The central review skill supplies change review.
+
+| Removed skill | Replacement | Reason |
+| --- | --- | --- |
+| `ask-matt` | J-Space and central skill selection | A second workflow router duplicated shared task selection. |
+| `implement` | J-Space repository control, with `tdd` and `code-review` when applicable | The entry only composed implementation, checks, review, and commit authority. |
+| `handoff` | J-Space state and the canonical portable-handoff rule | Both retain goals, evidence, open work, and continuation pointers. |
+| `grill-me` | `grilling` | The entry only loaded `grilling`. |
+| `grill-with-docs` | `grilling` with `domain-modeling` | The entry only loaded those two skills. |
+| `wait-what` | ASD-STE100 and an ordinary clarification request | The entry repeated the shared text rule and glossary use. |
+
+The retained skills below cover specialist work. Debugging supplies reproduction and regression procedures.
+TDD supplies test-first development. Architecture and domain skills supply interface design, glossary, and ADR procedures.
+Tracker skills supply specifications, ticket dependencies, triage, and decision maps.
+Prototypes, cited research reports, teaching workspaces, questionnaires, and interactive Bash guides remain distinct deliverables.
+Agent-document authoring retains its guidance on context pointers and information hierarchy.
+
+## Retained inventory
+
+Paths refer to the pinned upstream repository. Local links refer to this document. **Explicit** skills require a user request.
+**Automatic or explicit** skills also support relevant agent selection. Retained frontmatter and `agents/openai.yaml` preserve those invocation policies.
+Enforcement depends on the harness.
 
 | Skill | Upstream directory | Invocation | Use when |
 | --- | --- | --- | --- |
-| [ask-matt](ask-matt/SKILL.md) | `skills/engineering/ask-matt` | Explicit | Choose a skill or workflow for the task. |
 | [codebase-design](codebase-design/SKILL.md) | `skills/engineering/codebase-design` | Automatic or explicit | Design module interfaces and testable boundaries. |
 | [diagnosing-bugs](diagnosing-bugs/SKILL.md) | `skills/engineering/diagnosing-bugs` | Automatic or explicit | Investigate a difficult bug or performance regression. |
 | [domain-modeling](domain-modeling/SKILL.md) | `skills/engineering/domain-modeling` | Automatic or explicit | Clarify domain terminology and record glossary entries or decisions. |
-| [grill-with-docs](grill-with-docs/SKILL.md) | `skills/engineering/grill-with-docs` | Explicit | Refine a plan through questions while capturing terminology and decisions. |
-| [implement](implement/SKILL.md) | `skills/engineering/implement` | Explicit | Implement a specification or ticket with testing and review. |
 | [improve-codebase-architecture](improve-codebase-architecture/SKILL.md) | `skills/engineering/improve-codebase-architecture` | Explicit | Survey architectural problems and explore a selected improvement. |
 | [prototype](prototype/SKILL.md) | `skills/engineering/prototype` | Automatic or explicit | Answer a design question with a disposable logic or UI prototype. |
 | [research](research/SKILL.md) | `skills/engineering/research` | Automatic or explicit | Gather primary-source evidence and write cited findings. |
@@ -31,19 +53,19 @@ Paths in this table are relative to the pinned upstream repository. Local links 
 | [triage](triage/SKILL.md) | `skills/engineering/triage` | Explicit | Assess incoming issues and prepare them for implementation. |
 | [wayfinder](wayfinder/SKILL.md) | `skills/engineering/wayfinder` | Explicit | Plan a large effort through linked decision tickets across sessions. |
 | [wizard](wizard/SKILL.md) | `skills/engineering/wizard` | Automatic or explicit | Generate a Bash guide for a procedure requiring human interaction. |
-| [grill-me](grill-me/SKILL.md) | `skills/productivity/grill-me` | Explicit | Examine an idea or decision through detailed questions. |
 | [grilling](grilling/SKILL.md) | `skills/productivity/grilling` | Automatic or explicit | Supply the interview process used by other planning skills. |
-| [handoff](handoff/SKILL.md) | `skills/productivity/handoff` | Explicit | Save a concise continuation document for another agent session. |
 | [teach](teach/SKILL.md) | `skills/productivity/teach` | Explicit | Learn a topic through lessons and a persistent learning workspace. |
 | [to-questionnaire](to-questionnaire/SKILL.md) | `skills/productivity/to-questionnaire` | Explicit | Prepare questions for someone who holds missing information. |
-| [wait-what](wait-what/SKILL.md) | `skills/productivity/wait-what` | Explicit | Ask the agent to explain its last message more clearly. |
 | [writing-for-agents](writing-for-agents/SKILL.md) | `skills/productivity/writing-for-agents` | Automatic or explicit | Write instructions, skills, and reference documents for agents. |
 
 ## Central installation and use
 
-All five local harnesses share these files: Codex, Copilot CLI, Cursor, and Kilo discover the links in `~/.agents/skills`; Claude Code uses `~/.claude/skills`. Both platform sync scripts link each complete canonical directory. This source record is a Markdown file outside the individual skill directories, so it is not another discoverable skill.
+All six local harnesses share these files. Codex, Copilot CLI, Cursor, Kilo, and OMP use `~/.agents/skills`. Claude Code uses `~/.claude/skills`.
+Both sync scripts link each complete canonical directory. This source record sits outside the individual skill directories and is not a discoverable skill.
 
-Use `$ask-matt` in Codex, `/ask-matt` where slash commands are supported, or request the skill by name. The collection's usual planning flow is `grill-with-docs` → `to-spec` → `to-tickets` → `implement`; choose only the steps needed for the work. Individual tools such as `diagnosing-bugs`, `tdd`, and `handoff` can be requested directly. Companion skills remain available because the entire main collection is installed.
+Request a retained skill by name, such as `$grilling` or `$tdd` in Codex. Add `domain-modeling` when an interview needs glossary or ADR updates.
+Use `to-spec` and `to-tickets` when the task needs tracker artifacts. J-Space controls execution and continuation state.
+Choose only the specialist steps needed for the task.
 
 Run `setup-matt-pocock-skills` only when adopting workflows that need its project-specific tracker and document conventions. Ordinary code reviews do not require it. Central installation does not execute it. Existing instructions, repository constraints, and harness permissions govern skill use.
 

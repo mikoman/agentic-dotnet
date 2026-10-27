@@ -237,6 +237,34 @@ foreach ($skill in Get-ChildItem -LiteralPath (Join-Path $RootDir 'skills') -Dir
     New-ManagedLinkOrFallback -Source $skill.FullName -Destination (Join-Path $UserHome ".claude\skills\$($skill.Name)") -Mode Directory
 }
 
+$canonicalSkills = [IO.Path]::GetFullPath((Join-Path $RootDir 'skills')).TrimEnd([char[]]@('\', '/'))
+$pathComparison = if ([IO.Path]::DirectorySeparatorChar -eq '\') {
+    [StringComparison]::OrdinalIgnoreCase
+} else {
+    [StringComparison]::Ordinal
+}
+foreach ($skillsRoot in @((Join-Path $UserHome '.agents\skills'), (Join-Path $UserHome '.claude\skills'))) {
+    foreach ($entry in Get-ChildItem -LiteralPath $skillsRoot -Force -ErrorAction SilentlyContinue) {
+        if (-not ($entry.Attributes -band [IO.FileAttributes]::ReparsePoint)) {
+            continue
+        }
+        $target = @($entry.Target)[0]
+        if ([string]::IsNullOrWhiteSpace($target)) {
+            continue
+        }
+        if (-not [IO.Path]::IsPathRooted($target)) {
+            $target = Join-Path $skillsRoot $target
+        }
+        $target = [IO.Path]::GetFullPath($target).TrimEnd([char[]]@('\', '/'))
+        if ([string]::Equals([IO.Path]::GetDirectoryName($target), $canonicalSkills, $pathComparison) -and
+            -not (Test-Path -LiteralPath $target)) {
+            Backup-Path $entry.FullName
+            Remove-ManagedDestination $entry.FullName
+            Write-Note "removed stale managed link $($entry.FullName)"
+        }
+    }
+}
+
 if (Test-Path -LiteralPath $BackupRoot) {
     $backupItems = @(Get-ChildItem -LiteralPath $BackupRoot -Recurse -Force -ErrorAction SilentlyContinue)
     if ($backupItems.Count -gt 0) {

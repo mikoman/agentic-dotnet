@@ -5,7 +5,7 @@
 const fs = require('fs');
 const path = require('path');
 const { root } = require('./managed');
-const manual = new Set(['ask-matt', 'grill-me', 'grill-with-docs', 'handoff', 'implement', 'improve-codebase-architecture', 'setup-matt-pocock-skills', 'teach', 'to-questionnaire', 'to-spec', 'to-tickets', 'triage', 'wait-what', 'wayfinder']);
+const manual = new Set(['improve-codebase-architecture', 'setup-matt-pocock-skills', 'teach', 'to-questionnaire', 'to-spec', 'to-tickets', 'triage', 'wayfinder']);
 const portable = process.argv.includes('--portable');
 let count = 0;
 let failed = 0;

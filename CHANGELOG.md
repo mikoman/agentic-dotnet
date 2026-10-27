@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented here.
 
+## 1.3.1 - 2026-10-27
+
+- Removed six redundant Matt Pocock skills after reviewing overlap with J-Space and the shared workflows. Retained 18 specialist skills.
+- Updated skill routing, source records, installation examples, invocation checks, and the release allowlist for the reduced collection.
+- Added PowerShell cleanup of stale managed skill links. Added sync checks that preserve unrelated links and regular skill directories.
+
 ## 1.3.0 - 2026-10-27
 
 - Added the complete pinned J-Space Cognition Suite, including 13 modules, seven references, Python helpers, and licensing files.

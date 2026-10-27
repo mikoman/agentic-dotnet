@@ -8,7 +8,7 @@ const path = require('path');
 const { spawnSync } = require('child_process');
 const { samePath } = require('../scripts/managed');
 
-test('isolated sync repairs links, respects COPILOT_HOME, and preserves unrelated files', t => {
+test('isolated sync repairs and retires links while preserving unrelated paths', t => {
   const temporary = fs.mkdtempSync(path.join(fs.realpathSync(os.tmpdir()), 'agentic-sync-'));
   t.after(() => fs.rmSync(temporary, { recursive: true, force: true }));
   const source = path.resolve(__dirname, '..');
@@ -20,6 +20,18 @@ test('isolated sync repairs links, respects COPILOT_HOME, and preserves unrelate
   }
   const skill = path.join(root, 'skills/code-review');
   fs.cpSync(path.join(source, 'skills/code-review'), skill, { recursive: true });
+  const retired = path.join(root, 'skills/retired-skill');
+  fs.mkdirSync(retired);
+  fs.writeFileSync(path.join(retired, 'SKILL.md'), 'Temporary skill for retirement checks.');
+  const external = path.join(temporary, 'external-skill');
+  fs.mkdirSync(external);
+  for (const prefix of ['.agents/skills', '.claude/skills']) {
+    const discovery = path.join(userHome, prefix);
+    fs.mkdirSync(discovery, { recursive: true });
+    fs.symlinkSync(external, path.join(discovery, 'external-skill'), process.platform === 'win32' ? 'junction' : 'dir');
+    fs.mkdirSync(path.join(discovery, 'local-skill'));
+    fs.writeFileSync(path.join(discovery, 'local-skill/SKILL.md'), 'User-owned skill.');
+  }
   fs.mkdirSync(path.join(userHome, '.codex'), { recursive: true });
   const unrelated = path.join(userHome, '.codex/AGENTS.md');
   fs.writeFileSync(unrelated, 'unrelated instructions');
@@ -40,5 +52,16 @@ test('isolated sync repairs links, respects COPILOT_HOME, and preserves unrelate
     const ompMcp = JSON.parse(fs.readFileSync(path.join(userHome, '.omp/agent/mcp.json'), 'utf8'));
     assert.deepEqual(ompMcp.mcpServers['microsoft-learn'], { type: 'http', url: 'https://learn.microsoft.com/api/mcp' });
     assert.equal(fs.lstatSync(path.join(userHome, '.cursor/plugins/local/agentic-dotnet')).isSymbolicLink(), false);
+  }
+  fs.rmSync(retired, { recursive: true });
+  fs.rmSync(external, { recursive: true });
+  const result = spawnSync(command, args, { env, encoding: 'utf8', timeout: 30000 });
+  assert.equal(result.status, 0, result.stdout + result.stderr);
+  for (const prefix of ['.agents/skills', '.claude/skills']) {
+    const discovery = path.join(userHome, prefix);
+    assert.throws(() => fs.lstatSync(path.join(discovery, 'retired-skill')), { code: 'ENOENT' });
+    assert.equal(fs.lstatSync(path.join(discovery, 'external-skill')).isSymbolicLink(), true);
+    assert.equal(fs.readFileSync(path.join(discovery, 'local-skill/SKILL.md'), 'utf8'), 'User-owned skill.');
+    assert.equal(samePath(path.join(discovery, 'code-review'), skill), true);
   }
 });
