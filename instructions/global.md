@@ -11,6 +11,16 @@
 - Pass this requirement to delegated agents when they do not inherit it.
 - If the skill is unavailable, report that limit. Use short sentences, active voice, plain words, and one instruction per sentence.
 
+## J-Space task control
+
+- Load `j-space` before task execution, including work that uses another skill. Use the skill loader or read `~/.agents/skills/j-space/SKILL.md`. The Claude fallback is `~/.claude/skills/j-space/SKILL.md`. Resolve modules and scripts relative to that directory.
+- Select the lightest operating level that meets the task's evidence needs. Keep direct answers at `low` without persistent setup. Load only the modules needed for the current phase.
+- Use J-Space to track the goal, constraints, next action, open questions, and verification evidence. Use specialist skills for their task procedures. Preserve their invocation policies and the user's authorized scope.
+- For `high` and `xhigh`, follow the controller contract with Python 3.10 or later. Keep `.jspace/` as local task state. Keep verification artifacts in an existing ignored report directory when available. Report unavailable persistence, executable gates, or agent capabilities. Use the documented fallback without claiming equivalent verification.
+- Keep GitNexus as the source for code relationships. Bind J-Space map claims to inspected files and current verification. Neither map replaces source inspection or executable checks.
+- Pass this requirement to delegated agents when they do not inherit it. Keep conclusions tied to observable evidence. Internal-workspace metaphors do not establish model capabilities or task correctness.
+- If the skill is unavailable, report that limit. Continue with a concise task record and the available verification tools.
+
 ## GitNexus indexing and code discovery
 
 - At each coding task's start, identify the repository root, branch, HEAD, and existing working-tree changes.

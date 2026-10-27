@@ -9,7 +9,7 @@ A **harness** is the application that runs an agent. This repository gives suppo
 The package contains:
 
 - One instruction source for text output, development across languages, and conditional .NET/C# rules.
-- 27 shared skills: ASD-STE100, Impeccable, Alibaba-based code review, and 24 Matt Pocock skills.
+- 28 shared skills: ASD-STE100, J-Space, Impeccable, Alibaba-based code review, and 24 Matt Pocock skills.
 - A list of official .NET plugins to install where the harness supports them.
 - A minimal Model Context Protocol (MCP) policy for external tools.
 - Install, sync, check, and package scripts for macOS, Linux, and Windows.
@@ -42,7 +42,7 @@ Choose the harnesses that you want to use. You do not need all six.
 | PowerShell | To run the Windows scripts. Use PowerShell 7 where possible. The scripts target Windows PowerShell 5.1 syntax. |
 | Network access | To download the package, install official plugins, or use Microsoft Learn MCP. |
 | Node.js 18 or later | Required by shared install, sync, doctor, update, and package checks on all platforms. |
-| Python 3 | To run the ASD-STE100 linter or Codex's GitHub skill installer. |
+| Python 3 | To run the ASD-STE100 linter or Codex's GitHub skill installer. J-Space controllers require Python 3.10 or later. |
 | A suitable .NET SDK | To work on .NET applications. This package does not install an SDK. |
 
 The CLI installer commands require the relevant executables on `PATH`. Sign in to each harness through its normal account process.
@@ -87,18 +87,18 @@ If you run bootstrap from another directory, it copies the package to the centra
 6. Open a terminal in the extracted directory.
 7. Run the bootstrap command for your platform from the previous section.
 
-For release `v1.2.2`, these commands calculate the archive hash:
+For release `v1.3.0`, these commands calculate the archive hash:
 
 ```sh
 # macOS
-shasum -a 256 agentic-dotnet-1.2.2.tar.gz
+shasum -a 256 agentic-dotnet-1.3.0.tar.gz
 
 # Linux
-sha256sum agentic-dotnet-1.2.2.tar.gz
+sha256sum agentic-dotnet-1.3.0.tar.gz
 ```
 
 ```powershell
-Get-FileHash .\agentic-dotnet-1.2.2.zip -Algorithm SHA256
+Get-FileHash .\agentic-dotnet-1.3.0.zip -Algorithm SHA256
 ```
 
 Use the actual archive name for another release. Continue only when the hash matches.
@@ -217,8 +217,8 @@ This scan reports files. It does not delete application files. Without a directo
 Then check the running harness:
 
 1. Start a fresh agent session.
-2. Check that its skill list contains `asd-ste100` and `ask-matt`.
-3. Ask it to identify the shared text-output rule.
+2. Check that its skill list contains `asd-ste100`, `j-space`, and `ask-matt`.
+3. Ask it to identify the shared text-output and J-Space rules.
 4. Check a normal answer for clear sentences and preserved technical meaning.
 
 In Copilot CLI, use `/skills reload`, `/skills list`, and `/skills info asd-ste100`. See the [Copilot skill guide](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-skills).
@@ -231,11 +231,12 @@ Correct file paths prove configuration. They do not prove that every running age
 
 ## Use the shared skills
 
-The repository includes 27 skills. Bootstrap installs their files without a separate download from each skill author.
+The repository includes 28 skills. Bootstrap installs their files without a separate download from each skill author.
 
 | Collection | Purpose | Start here |
 | --- | --- | --- |
 | ASD-STE100 | Clear text for people and agents. The shared instructions require it for all authored text. | [Source and use](skills/ASD-STE100.md) |
+| J-Space Cognition Suite | Task state, source evidence, verification, and recovery across skill workflows. | [Source and use](skills/J-SPACE.md) |
 | Matt Pocock, 24 skills | Planning, debugging, testing, teaching, and handover documents. | [Inventory and workflow guide](skills/MATTPOCOCK.md) |
 | Alibaba-based code review | Scope-aware Git review, with direct source review when OCR is unavailable. | [Source, tools, and privacy](skills/CODE-REVIEW.md) |
 | Impeccable 4.3.1 | Interface design, audits, and visual changes. | [Source and runtime](skills/IMPECCABLE.md) |
@@ -257,6 +258,15 @@ python3 skills/asd-ste100/scripts/ste-lint.py path/to/document.md
 On Windows, use `py` instead of `python3`. The linter uses simple text patterns. Review each finding before changing text, identifiers, or URLs.
 
 The skill guides writing. It does not intercept responses or prove certified ASD-STE100 compliance.
+
+### J-Space
+
+The [J-Space rule](instructions/global.md#j-space-task-control) requires agents to load `j-space` before task execution, including other skill workflows.
+Agents select its lightest suitable level. Direct answers use `low` without persistent setup.
+
+The complete suite includes 13 modules and Python helpers for persistent state and verification gates.
+Its controllers need Python 3.10 or later. Installation prepares discovery through the existing shared skill paths.
+Check [source and verification details](skills/J-SPACE.md) for the pinned revision, runtime checks, and limits.
 
 ### Matt Pocock skills
 

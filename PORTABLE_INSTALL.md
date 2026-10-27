@@ -84,7 +84,7 @@ Missing harnesses produce warnings, not installation failures. Run the bootstrap
 
 ## Shared skills, including Matt Pocock's collection
 
-This package includes [ASD-STE100](skills/ASD-STE100.md), [Impeccable](skills/IMPECCABLE.md), [Alibaba-based code review](skills/CODE-REVIEW.md), and 24 Matt Pocock skills. The retained inventory, pins, invocation settings, and local changes are in [skills/MATTPOCOCK.md](skills/MATTPOCOCK.md). Miscellaneous and in-progress skills remain excluded.
+This package includes [ASD-STE100](skills/ASD-STE100.md), [J-Space](skills/J-SPACE.md), [Impeccable](skills/IMPECCABLE.md), [Alibaba-based code review](skills/CODE-REVIEW.md), and 24 Matt Pocock skills. The retained inventory, pins, invocation settings, and local changes are in [skills/MATTPOCOCK.md](skills/MATTPOCOCK.md). Miscellaneous and in-progress skills remain excluded.
 
 ### Restore on another machine
 
@@ -105,7 +105,8 @@ These are symlinks, or directory junctions on Windows when required. Current [Co
 
 ### ASD-STE100 for all text output
 
-`asd-ste100` follows the same central storage and discovery paths. The [canonical text-output rule](instructions/global.md#text-output) requires it for all authored text. Other skills retain their normal triggers.
+`asd-ste100` follows the same central storage and discovery paths. The [canonical text-output rule](instructions/global.md#text-output) requires it for all authored text.
+The [canonical J-Space rule](instructions/global.md#j-space-task-control) requires `j-space` across task workflows. Other skills retain their normal triggers.
 
 The [task and skill selection rules](instructions/global.md#task-and-skill-selection) apply across languages. Agents select skills for the affected component and task. .NET rules apply only to .NET components. Both platform adapters consume the same canonical file. Installed plugins remain available, but installation does not require their use for every task. See [Work in other languages](README.md#work-in-other-languages).
 
@@ -114,6 +115,17 @@ The requirement also applies to delegated agents. The parent agent must include 
 After sync, start a fresh session in each installed harness. Check that it can load `asd-ste100` and identify the text-output rule. Then check a normal answer for short sentences, clear actions, and preserved uncertainty. A configured path alone does not prove that a running session loaded the rule.
 
 The Windows Kilo limits above still apply. Shared skill discovery alone cannot impose a global writing rule. Hosted agents need their own supported instruction and skill distribution. See [the source and verification guide](skills/ASD-STE100.md).
+
+### J-Space across task workflows
+
+The package includes the complete [J-Space Cognition Suite](skills/J-SPACE.md) at a pinned revision.
+Both sync scripts expose `j-space` through the same paths as other shared skills.
+Agents load it before task execution and select the lightest suitable level. Direct answers need no persistent setup.
+Specialist skills retain their procedures and invocation policies.
+
+The executable controllers require Python 3.10 or later. Use `python3` on macOS/Linux or `py -3` on Windows.
+Keep controller state local. Installation does not register automatic event hooks.
+Start a fresh session and check skill discovery and one representative task in each installed harness.
 
 ### Use the skills when needed
 

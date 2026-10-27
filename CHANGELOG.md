@@ -2,6 +2,13 @@
 
 All notable changes to this project are documented here.
 
+## 1.3.0 - 2026-10-27
+
+- Added the complete pinned J-Space Cognition Suite, including 13 modules, seven references, Python helpers, and licensing files.
+- Required J-Space across task and skill workflows through the canonical instructions. Preserved specialist procedures and invocation policies.
+- Added the suite to portable release packages and documented its source, Python requirement, verification, and runtime limits.
+- Excluded local `.jspace/` task state from Git.
+
 ## 1.2.2 - 2026-10-02
 
 - Added one controlled retry for GitNexus invalid UTF-8 and FTS indexing failures. Preserved `--index-only` and serialized indexing.

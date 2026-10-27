@@ -10,6 +10,7 @@ The central source controls instructions, skills, desired plugins, and generated
 | Impeccable | [Released skill and engine versions](skills/IMPECCABLE.md) |
 | Matt Pocock workflows | [Retained inventory and local changes](skills/MATTPOCOCK.md) |
 | ASD-STE100 | [Source, metadata change, and limits](skills/ASD-STE100.md) |
+| J-Space | [Pinned suite, shared rule, and verification](skills/J-SPACE.md) |
 | Official .NET plugins | `config/plugins.yaml` selects plugins. `config/plugin-versions.json` records reviewed versions and the cache commit. |
 | Optional review executable | `config/tools.json` records the reviewed OCR package. |
 | GitNexus CLI | `config/tools.json` records the minimum stable version. Installation remains separate. See [Use GitNexus](README.md#use-gitnexus). |
@@ -40,6 +41,7 @@ Run these checks from the central root:
 node scripts/validate-skills.js
 node --test tests/managed.test.js tests/omp-mcp-merge.test.js tests/sync.test.js
 node scripts/release-files.js
+python3 skills/j-space/scripts/verify_suite.py
 ```
 
 Run the platform sync, install, and doctor scripts after configuration changes. Use `--skip-plugins` or `-SkipPlugins` for isolated skill changes.
