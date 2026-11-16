@@ -3,8 +3,10 @@
 
 const fs = require('fs');
 const path = require('path');
-const { root, home, copilotHome, plugins, run, stableVersionAtLeast, exists, samePath, treeDigest } = require('./managed');
+const { root, home, copilotHome, plugins, officialSkillsDirectory, run, stableVersionAtLeast, exists, samePath, treeDigest } = require('./managed');
 const { sources, matches } = require('./cursor-adapter');
+const { isManagedEntry } = require('./opencode-config-merge');
+const { inspect: inspectT3, findings: t3Findings } = require('./t3code');
 const totals = { PASS: 0, WARN: 0, FAIL: 0 };
 const timeout = Number(process.env.AGENTIC_DOTNET_CHECK_TIMEOUT_MS || 10000);
 if (!Number.isFinite(timeout) || timeout < 100 || timeout > 60000) { throw new Error('Invalid check timeout.'); }
@@ -148,6 +150,50 @@ if (fs.existsSync(path.join(home, '.config/kilo'))) {
   for (const name of plugins()) {
     report(fs.existsSync(path.join(home, '.cache/agentic-dotnet/dotnet-skills/plugins', name, 'skills')) ? 'PASS' : 'WARN', 'Kilo official skill files: ' + name);
   }
+}
+
+const opencodeHome = path.join(home, '.config/opencode');
+const opencodeConfigured = fs.existsSync(opencodeHome);
+if (opencodeConfigured) {
+  equalFile(path.join(opencodeHome, 'AGENTS.md'), canonical, 'OpenCode instruction adapter');
+  let opencodeConfig = null;
+  try { opencodeConfig = JSON.parse(read(path.join(opencodeHome, 'opencode.json'))); } catch {}
+  const servers = opencodeConfig && opencodeConfig.mcp && opencodeConfig.mcp.servers;
+  const learn = servers && servers['microsoft-learn'];
+  report(learn && learn.type === 'remote' && learn.url === 'https://learn.microsoft.com/api/mcp' ? 'PASS' : 'FAIL', 'OpenCode Microsoft Learn MCP (file configuration)');
+  let listed = [];
+  if (opencodeConfig && Array.isArray(opencodeConfig.skills)) {
+    listed = opencodeConfig.skills;
+  } else if (opencodeConfig && opencodeConfig.skills && Array.isArray(opencodeConfig.skills.paths)) {
+    listed = opencodeConfig.skills.paths;
+  }
+  for (const name of plugins()) {
+    const directory = officialSkillsDirectory(name);
+    if (!fs.existsSync(directory)) {
+      report('WARN', 'OpenCode official skill files missing in cache: ' + name);
+    } else {
+      report(listed.includes(directory) ? 'PASS' : 'WARN', 'OpenCode official skill source ' + name + (listed.includes(directory) ? '' : ' is not listed. Run sync.'));
+    }
+  }
+  for (const entry of listed) {
+    if (isManagedEntry(entry) && !fs.existsSync(entry)) {
+      report('FAIL', 'OpenCode lists a missing official skills path. OpenCode then loads no skills: ' + entry);
+    }
+  }
+  const opencodeMinimum = JSON.parse(read(path.join(root, 'config/tools.json'))).opencode.minimumVersion;
+  const opencode = command('opencode', ['--version']);
+  const opencodeVersion = /(\d+\.\d+\.\d+)/.exec(opencode.stdout || '');
+  if (opencode.status !== 0 || !opencodeVersion) {
+    report('WARN', 'OpenCode version unknown: unavailable, failed, or timed out');
+  } else if (stableVersionAtLeast(opencodeVersion[1], opencodeMinimum)) {
+    report('PASS', 'OpenCode ' + opencodeVersion[1] + ' meets the minimum version (not a runtime skill check)');
+  } else {
+    report('WARN', 'OpenCode ' + opencodeVersion[1] + ' is older than ' + opencodeMinimum + '. The MCP and skills entries target OpenCode 2.x.');
+  }
+}
+
+for (const [level, message] of t3Findings(inspectT3(), { requiredSkills: ['asd-ste100', 'j-space', 'grilling'], opencodeConfigured, opencodeDirectory: opencodeHome })) {
+  report(level, message);
 }
 
 const devRoot = process.argv[2] || process.env.AGENTIC_DOTNET_DEV_ROOT;

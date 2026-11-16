@@ -43,10 +43,19 @@ NEED_CACHE=0
 if [ "$SKIP_PLUGINS" -eq 0 ]; then
   if [ -d '/Applications/Cursor.app' ] || command -v cursor-agent >/dev/null 2>&1; then NEED_CACHE=1; fi
   if [ -d "${USER_HOME}/.config/kilo" ]; then NEED_CACHE=1; fi
+  if [ -d "${USER_HOME}/.config/opencode" ]; then NEED_CACHE=1; fi
 fi
 
 "${ROOT_DIR}/scripts/sync.sh"
 if [ "$WITH_OCR" -eq 1 ]; then node "${ROOT_DIR}/scripts/install-tools.js" --apply; fi
+
+t3_status=0
+node "${ROOT_DIR}/scripts/t3code.js" || t3_status=$?
+case "$t3_status" in
+  0) ;;
+  4) warn 'T3 Code is installed but has not started yet; open it once, then run the doctor' ;;
+  *) warn 'T3 Code is not installed' ;;
+esac
 
 if [ "$SKIP_PLUGINS" -eq 1 ]; then
   note 'skipping plugin and MCP CLI installation by request'
@@ -54,6 +63,13 @@ if [ "$SKIP_PLUGINS" -eq 1 ]; then
 fi
 
 if [ "$NEED_CACHE" -eq 1 ]; then ensure_dotnet_skills_cache; fi
+
+if [ -d "${USER_HOME}/.config/opencode" ]; then
+  # Sync ran before the official cache existed. Merge again so OpenCode lists its skill directories.
+  if ! node "${ROOT_DIR}/scripts/opencode-config-merge.js" "${USER_HOME}/.config/opencode/opencode.json" "${ROOT_DIR}/backups/install-$(date '+%Y-%m-%d-%H%M%S')"; then
+    warn 'OpenCode config merge failed'
+  fi
+fi
 
 node "${ROOT_DIR}/scripts/install-native.js"
 
@@ -75,6 +91,20 @@ if [ -d "${USER_HOME}/.config/kilo" ]; then
   note 'Kilo has no native dotnet/skills plugin marketplace; official skills are exposed via skills.paths in ~/.config/kilo/kilo.jsonc'
 else
   warn 'Kilo config directory not present; official skills not wired'
+fi
+
+if [ -d "${USER_HOME}/.config/opencode" ]; then
+  for plugin in "${PLUGINS[@]}"; do
+    source_path="${DOTNET_SKILLS_CHECKOUT}/plugins/${plugin}/skills"
+    if [ -d "$source_path" ]; then
+      note "OpenCode official skills ready: $plugin"
+    else
+      warn "OpenCode official skills missing in cache: $plugin"
+    fi
+  done
+  note 'OpenCode has no native dotnet/skills plugin marketplace; official skills are listed in ~/.config/opencode/opencode.json'
+else
+  warn 'OpenCode config directory not present; its instructions, MCP, and official skills are not wired'
 fi
 
 if command -v copilot >/dev/null 2>&1; then

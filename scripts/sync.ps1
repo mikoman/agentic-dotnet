@@ -226,6 +226,12 @@ if ($LASTEXITCODE -ne 0) { throw 'Cursor adapter synchronization failed.' }
 if ($LASTEXITCODE -ne 0) { throw 'Review adapter generation failed.' }
 & node (Join-Path $RootDir 'scripts\omp-mcp-merge.js') (Join-Path $UserHome '.omp\agent\mcp.json') $BackupRoot
 if ($LASTEXITCODE -ne 0) { Write-SyncWarning 'OMP MCP merge failed' }
+$OpenCodeDir = Join-Path $UserHome '.config\opencode'
+if (Test-Path -LiteralPath $OpenCodeDir -PathType Container) {
+    New-ManagedLinkOrFallback -Source $GlobalInstructions -Destination (Join-Path $OpenCodeDir 'AGENTS.md') -Mode Content
+    & node (Join-Path $RootDir 'scripts\opencode-config-merge.js') (Join-Path $OpenCodeDir 'opencode.json') $BackupRoot
+    if ($LASTEXITCODE -ne 0) { Write-SyncWarning 'OpenCode config merge failed' }
+}
 New-ManagedLinkOrFallback -Source (Join-Path $RootDir 'adapters\code-review\rule.json') -Destination (Join-Path $UserHome '.opencodereview\rule.json') -Mode ExactCopy
 
 foreach ($skill in Get-ChildItem -LiteralPath (Join-Path $RootDir 'skills') -Directory -ErrorAction SilentlyContinue) {

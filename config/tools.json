@@ -4,6 +4,10 @@
     "minimumVersion": "1.6.12",
     "managedInstallation": false
   },
+  "opencode": {
+    "minimumVersion": "2.0.0",
+    "managedInstallation": false
+  },
   "ocr": {
     "package": "@alibaba-group/open-code-review",
     "version": "1.12.11",

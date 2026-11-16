@@ -32,3 +32,5 @@ harnesses:
   cursor: generated-local-plugin-deployments
   copilot: instructions-skills-and-mcp
   kilo: official-skills-via-skills.paths
+  opencode: official-skills-via-skills-list
+  t3code: host-of-provider-harnesses

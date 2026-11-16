@@ -23,6 +23,8 @@
   "adapters/cursor/rules/global-dotnet.mdc",
   "adapters/kilo/README.md",
   "adapters/omp/README.md",
+  "adapters/opencode/README.md",
+  "adapters/t3code/README.md",
   "bootstrap.ps1",
   "bootstrap.sh",
   "config/mcp.yaml",
@@ -44,12 +46,14 @@
   "scripts/managed.js",
   "scripts/omp-mcp-merge.js",
   "scripts/official-cache.js",
+  "scripts/opencode-config-merge.js",
   "scripts/package.ps1",
   "scripts/package.sh",
   "scripts/release-files.js",
   "scripts/review-adapter.js",
   "scripts/sync.ps1",
   "scripts/sync.sh",
+  "scripts/t3code.js",
   "scripts/update.js",
   "scripts/update.ps1",
   "scripts/update.sh",
@@ -237,5 +241,7 @@
   "skills/writing-for-agents/agents/openai.yaml",
   "tests/managed.test.js",
   "tests/omp-mcp-merge.test.js",
-  "tests/sync.test.js"
+  "tests/opencode-config-merge.test.js",
+  "tests/sync.test.js",
+  "tests/t3code.test.js"
 ]

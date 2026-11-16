@@ -77,8 +77,10 @@ Windows tries file symbolic links first. If the account cannot create them, the 
 - Cursor consumes shared skills through `~/.agents/skills`. Both platform scripts generate physical local plugin deployments. The installer prepares reviewed official .NET sources when Cursor is detected. External-target plugin links are not used.
 - Kilo consumes shared skills through `~/.agents/skills`; the POSIX installer also configures its instructions, Microsoft Learn MCP, and official .NET skill paths when its config directory exists.
 - OMP receives its user `AGENTS.md`, official `dotnet/skills` marketplace plugins through its Claude-compatible marketplace, shared personal skills through `~/.agents/skills`, and Microsoft Learn MCP merged into `~/.omp/agent/mcp.json`.
+- OpenCode consumes shared skills through `~/.agents/skills`. When `~/.config/opencode` exists, both platform scripts also link its global `AGENTS.md` and merge the Microsoft Learn MCP server and official .NET skill directories into `opencode.json`. Without the `AGENTS.md` link, OpenCode does not receive the shared instructions.
+- T3 Code is a host. It has no configuration of its own. It starts provider agents such as Claude Code, Codex, and OpenCode, and they use the adapters above. The installer prints its providers. The doctor checks them. See the [T3 Code adapter](adapters/t3code/README.md).
 
-Both platform sync scripts expose shared skills to all six harnesses. Windows Kilo instruction/MCP support remains partial. Cursor deployment files require a fresh-session check in Customize. Files alone do not prove runtime loading.
+Both platform sync scripts expose shared skills to all seven harnesses. Windows Kilo instruction/MCP support remains partial. Cursor deployment files require a fresh-session check in Customize. Files alone do not prove runtime loading.
 
 Missing harnesses produce warnings, not installation failures. Run the bootstrap again after installing a harness; the process is idempotent.
 
@@ -100,6 +102,7 @@ There is one physical copy under `<central-root>/skills/<skill-name>/`. Both syn
 | Cursor | `.agents/skills/<skill-name>` |
 | Kilo | `.agents/skills/<skill-name>` |
 | OMP | `.agents/skills/<skill-name>` |
+| OpenCode | `.agents/skills/<skill-name>` |
 
 These are symlinks, or directory junctions on Windows when required. Current [Copilot CLI](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-skills), [Cursor](https://cursor.com/docs/skills), and [Kilo](https://kilo.ai/docs/customize/skills) documentation describes shared skill discovery. Installing the same collection again through a native plugin or a per-harness installer would create competing installations.
 
@@ -129,7 +132,7 @@ Start a fresh session and check skill discovery and one representative task in e
 
 ### Use the skills when needed
 
-In Codex, the new skills are available on the next turn; if an existing session retains an old list, start a new session. Other harnesses may need a new session or reload. In Copilot CLI use `/skills reload`, `/skills list`, and `/skills info grilling`; in Cursor check Customize → Skills; in Kilo use `/reload` or start a new session; in OMP run `omp skill list` or start a new session. Check the skill picker/list where the installed harness provides one.
+In Codex, the new skills are available on the next turn; if an existing session retains an old list, start a new session. Other harnesses may need a new session or reload. In Copilot CLI use `/skills reload`, `/skills list`, and `/skills info grilling`; in Cursor check Customize → Skills; in Kilo use `/reload` or start a new session; in OMP run `omp skill list` or start a new session. In OpenCode, run `opencode reload` when a background service runs. Then start a new session. In T3 Code, start a new thread. Check the skill picker/list where the installed harness provides one.
 
 Request a retained specialist by name. Use `grilling` with `domain-modeling` when an interview needs glossary or ADR updates. J-Space controls task execution and continuation state.
 Before adopting tracker and domain-document conventions, invoke `setup-matt-pocock-skills` **inside the application repository**.

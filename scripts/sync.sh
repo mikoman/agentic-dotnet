@@ -116,6 +116,13 @@ if [ -d "${USER_HOME}/.config/kilo" ]; then
   fi
 fi
 
+if [ -d "${USER_HOME}/.config/opencode" ]; then
+  ensure_symlink "$GLOBAL_INSTRUCTIONS" "${USER_HOME}/.config/opencode/AGENTS.md"
+  if ! node "${ROOT_DIR}/scripts/opencode-config-merge.js" "${USER_HOME}/.config/opencode/opencode.json" "$BACKUP_DIR"; then
+    warn 'OpenCode config merge failed'
+  fi
+fi
+
 node "${ROOT_DIR}/scripts/cursor-adapter.js"
 node "${ROOT_DIR}/scripts/review-adapter.js"
 ensure_symlink "${ROOT_DIR}/adapters/code-review/rule.json" "${USER_HOME}/.opencodereview/rule.json"

@@ -38,6 +38,8 @@ If an existing setting is ambiguous, preserve it and report it for manual review
 - Inspect its current `--help`, plugin/extension help, MCP help, and configuration status before invoking installation commands.
 - Consult current official documentation when local help does not establish a supported mechanism.
 - Determine whether it supports global instructions, `AGENTS.md`, Agent Skills, plugins, imports, symlinks, and MCP.
+- Determine whether it is a host that starts other agents, such as T3 Code. For a host, find the agents that it starts and configure each one through its own adapter. Do not create a second instruction path for the host. Report the host's providers in install and doctor. Read only non-secret fields of host settings.
+- Do not trust documentation alone. Test how the harness delivers instructions and skills. Compare a prompt with and without the adapter. Use a local test model and a throwaway config directory.
 - Do not install an entire IDE or application merely because its configuration can be prepared.
 
 ### 2. Audit existing user configuration
@@ -89,6 +91,7 @@ The existing discovery paths are:
 | GitHub Copilot CLI | `~/.agents/skills/<skill-name>` |
 | Cursor | `~/.agents/skills/<skill-name>` |
 | Kilo | `~/.agents/skills/<skill-name>` |
+| OpenCode | `~/.agents/skills/<skill-name>` |
 
 Every entry points to the same `skills/<skill-name>` directory. Windows uses symlinks or directory junctions. Verify the new harness's current discovery support before adding another path, and preserve unrelated skills with colliding names for review.
 

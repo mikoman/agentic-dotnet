@@ -38,6 +38,10 @@ test('isolated sync repairs and retires links while preserving unrelated paths',
   const link = path.join(userHome, '.agents/skills/code-review');
   fs.mkdirSync(path.dirname(link), { recursive: true });
   if (process.platform !== 'win32') { fs.symlinkSync(path.join(root, 'missing'), link); }
+  const opencodeConfig = path.join(userHome, '.config/opencode/opencode.json');
+  const opencodeOriginal = { model: 'local/model', provider: { local: { options: { apiKey: 'TEST-KEY-VALUE' } } } };
+  fs.mkdirSync(path.dirname(opencodeConfig), { recursive: true });
+  fs.writeFileSync(opencodeConfig, JSON.stringify(opencodeOriginal));
   const env = { ...process.env, AGENTIC_DOTNET_HOME: root, AGENTIC_DOTNET_USER_HOME: userHome, COPILOT_HOME: path.join(userHome, 'custom-copilot'), AGENTIC_DOTNET_REPLACE_EXISTING: '0' };
   const powershell = process.platform === 'win32' || process.env.AGENTIC_TEST_PWSH;
   const command = powershell ? (process.env.AGENTIC_TEST_PWSH || 'pwsh') : 'bash';
@@ -51,6 +55,11 @@ test('isolated sync repairs and retires links while preserving unrelated paths',
     assert.equal(fs.readFileSync(path.join(userHome, '.omp/agent/AGENTS.md'), 'utf8').includes('# Global coding-agent instructions'), true);
     const ompMcp = JSON.parse(fs.readFileSync(path.join(userHome, '.omp/agent/mcp.json'), 'utf8'));
     assert.deepEqual(ompMcp.mcpServers['microsoft-learn'], { type: 'http', url: 'https://learn.microsoft.com/api/mcp' });
+    assert.equal(fs.readFileSync(path.join(userHome, '.config/opencode/AGENTS.md'), 'utf8').includes('# Global coding-agent instructions'), true);
+    const opencode = JSON.parse(fs.readFileSync(opencodeConfig, 'utf8'));
+    assert.deepEqual(opencode.mcp.servers['microsoft-learn'], { type: 'remote', url: 'https://learn.microsoft.com/api/mcp' });
+    assert.deepEqual(opencode.provider, opencodeOriginal.provider);
+    assert.equal(opencode.model, opencodeOriginal.model);
     assert.equal(fs.lstatSync(path.join(userHome, '.cursor/plugins/local/agentic-dotnet')).isSymbolicLink(), false);
   }
   fs.rmSync(retired, { recursive: true });

@@ -2,9 +2,9 @@
 
 [![Build status](https://github.com/mikoman/agentic-dotnet/actions/workflows/validate.yml/badge.svg)](https://github.com/mikoman/agentic-dotnet/actions/workflows/validate.yml)
 
-`agentic-dotnet` keeps your local coding-agent configuration in one directory. It supports Codex, Claude Code, GitHub Copilot CLI, Cursor, Kilo, and OMP.
+`agentic-dotnet` keeps your local coding-agent configuration in one directory. It supports Codex, Claude Code, GitHub Copilot CLI, Cursor, Kilo, OMP, and OpenCode. It also checks the agents that the T3 Code desktop host starts.
 
-A **harness** is the application that runs an agent. This repository gives supported harnesses shared instructions, reusable skills, and selected external tools.
+A **harness** is the application that runs an agent. This repository gives supported harnesses shared instructions, reusable skills, and selected external tools. A **host** such as T3 Code starts harnesses and has no configuration of its own.
 
 The package contains:
 
@@ -32,7 +32,7 @@ The package configures existing applications. Install your agent applications, d
 
 ## Requirements
 
-Choose the harnesses that you want to use. You do not need all six.
+Choose the harnesses that you want to use. You do not need all seven.
 
 | Requirement | When you need it |
 | --- | --- |
@@ -87,18 +87,18 @@ If you run bootstrap from another directory, it copies the package to the centra
 6. Open a terminal in the extracted directory.
 7. Run the bootstrap command for your platform from the previous section.
 
-For release `v1.3.1`, these commands calculate the archive hash:
+For release `v1.4.0`, these commands calculate the archive hash:
 
 ```sh
 # macOS
-shasum -a 256 agentic-dotnet-1.3.1.tar.gz
+shasum -a 256 agentic-dotnet-1.4.0.tar.gz
 
 # Linux
-sha256sum agentic-dotnet-1.3.1.tar.gz
+sha256sum agentic-dotnet-1.4.0.tar.gz
 ```
 
 ```powershell
-Get-FileHash .\agentic-dotnet-1.3.1.zip -Algorithm SHA256
+Get-FileHash .\agentic-dotnet-1.4.0.zip -Algorithm SHA256
 ```
 
 Use the actual archive name for another release. Continue only when the hash matches.
@@ -169,12 +169,14 @@ The scripts use links, imports, or generated adapters to distribute the central 
 | Cursor | Both platforms generate a physical local instruction/MCP plugin. The installer deploys reviewed official plugins when Cursor is detected. | `~/.agents/skills/<skill-name>` |
 | Kilo | POSIX scripts prepare global instructions, Microsoft Learn MCP, and official .NET skill paths. | `~/.agents/skills/<skill-name>` |
 | OMP | Global `AGENTS.md`, official .NET marketplace plugins, and Microsoft Learn MCP merged into `~/.omp/agent/mcp.json`. | `~/.agents/skills/<skill-name>` |
+| OpenCode | Global `AGENTS.md`, Microsoft Learn MCP, and official .NET skill directories merged into `~/.config/opencode/opencode.json`. | `~/.agents/skills/<skill-name>` |
+| T3 Code | A host. It starts Claude Code, Codex, OpenCode, and other providers. Each provider uses its own row above. Doctor checks the providers that T3 Code runs. | Not applicable |
 
 `~` means your home directory. Windows uses the equivalent paths under your user profile.
 
 Windows tries symbolic links first. Without link permission, sync uses generated instruction files and directory junctions for skills.
 
-Both platform scripts expose the shared skills to all six harnesses. The PowerShell scripts configure the remaining instructions, plugins, and MCP integration for Codex, Claude Code, OMP, and Copilot CLI.
+Both platform scripts expose the shared skills to all seven harnesses. The PowerShell scripts configure the remaining instructions, plugins, and MCP integration for Codex, Claude Code, OMP, OpenCode, and Copilot CLI.
 
 Cursor plugins are generated deployment copies under `~/.cursor/plugins/local`. Their source remains central or in the reviewed official cache. External-target plugin symlinks are not used. Sync backs up managed deployments and refuses unreviewed local edits. Check Customize after a reload to confirm runtime loading.
 
@@ -186,7 +188,31 @@ On macOS/Linux, Kilo setup requires an existing `~/.config/kilo` directory. Offi
 
 OMP consumes the central sources through its native mechanisms. `~/.omp/agent/AGENTS.md` links the global instructions and shadows other user-level context files. OMP discovers shared skills from `~/.agents/skills` through its `agents` provider (`skills.enableAgentsUser`). Official .NET plugins install through OMP's Claude-compatible plugin marketplace as `dotnet-agent-skills`. Sync merges the Microsoft Learn MCP entry into `~/.omp/agent/mcp.json` and preserves other servers and settings. Named OMP profiles (`omp --profile <name>`) use a separate agent directory and are not configured by these scripts.
 
+OpenCode consumes the central sources through its native mechanisms. Setup needs an existing `~/.config/opencode` directory. The file `~/.config/opencode/AGENTS.md` links the global instructions. Without that link, OpenCode does not send the shared instructions to the model. The `@` import in `~/.claude/CLAUDE.md` does not reach OpenCode. OpenCode discovers shared skills from `~/.agents/skills`. Sync merges the Microsoft Learn MCP entry and the official .NET skill directories into `opencode.json`. It lists only skill directories that exist, because OpenCode 2.2.5 loads no skills when the first listed path is missing. The merge preserves all other settings, including provider keys. It stops with a warning when the file is not strict JSON. A running OpenCode background service keeps its old configuration until you run `opencode reload`.
+
 Missing applications produce warnings. Install the application separately. Then run bootstrap again.
+
+### T3 Code
+
+T3 Code is a desktop host. It has no instruction, skill, or MCP settings of its own. It starts provider agents, and each agent reads its own user configuration. Sync and install prepare that configuration. So T3 Code uses the shared sources through its providers.
+
+| T3 provider | Prepared by |
+| --- | --- |
+| `claudeAgent` | The Claude Code row in the table above. |
+| `codex` | The Codex row. |
+| `opencode` | The OpenCode row. This provider needs the `AGENTS.md` link to receive the shared instructions. |
+| `cursor` | The Cursor row. |
+
+Install prints the T3 Code version and the providers that it runs. Doctor reads the T3 settings file and provider caches. It reads only non-secret fields. It reports providers that have no adapter, providers that use a custom home path, and shared skills that the T3 skill cache lacks.
+
+To use the package with T3 Code:
+
+1. Install T3 Code and open it once.
+2. Run `./bootstrap.sh` or `.\bootstrap.ps1`.
+3. Start a new thread in T3 Code.
+4. Run the doctor.
+
+T3 Code lists skills for Claude Code and Codex. It lists none for OpenCode, but OpenCode still loads them. A remote T3 environment runs providers on its own machine. Run this package on the machine that hosts the T3 server. See the [T3 Code adapter](adapters/t3code/README.md) for limits.
 
 ### Hosted and remote agents
 
@@ -226,6 +252,10 @@ In Copilot CLI, use `/skills reload`, `/skills list`, and `/skills info asd-ste1
 In OMP, run `omp skill list` and `omp plugin list`. The skill list should include `asd-ste100`, `j-space`, and `grilling` with the `agents:user` source. The plugin list should show each `*@dotnet-agent-skills` entry.
 
 In Cursor, open the Skills view under Customize. See the [Cursor skill guide](https://cursor.com/docs/skills). Use the current skill picker or reload command in other harnesses.
+
+In OpenCode, start a new session. Ask it to identify the shared text-output rule. Run `opencode reload` first when a background service is running.
+
+In T3 Code, start a new thread with each provider that you use. Ask it to identify the shared rules. The doctor reports the T3 skill caches for Claude Code and Codex.
 
 Correct file paths prove configuration. They do not prove that every running agent loaded or followed the instructions.
 
@@ -524,6 +554,10 @@ There is no automatic uninstall script. To disconnect a harness:
 | Windows cannot create a skill link. | Check symbolic-link or directory-junction permissions. Inspect the sync warning. |
 | A plugin or MCP check fails. | Check the harness CLI version, account access, and network connection. Inspect the installer output. |
 | Kilo configuration does not update. | Check Node.js and the existing Kilo config directory on macOS/Linux. |
+| OpenCode misses the rules. | Check that `~/.config/opencode` exists. Run sync. Run `opencode reload` or restart OpenCode. |
+| OpenCode loads no skills. | Check the `skills` list in `opencode.json`. A missing first path stops all loading. Run sync. |
+| T3 Code shows no skills for OpenCode. | T3 Code does not list OpenCode skills. Run the doctor to check the OpenCode files. |
+| Doctor warns about a T3 custom home path. | Sync configures default homes only. Configure that home separately. |
 | An OMP named profile misses the rules. | The scripts target the default profile (`~/.omp/agent`). Rerun sync for the profile's own agent directory or launch without `--profile`. |
 | An update leaves an old plugin. | Uninstall that plugin through its harness. Selection changes do not uninstall existing plugins. |
 

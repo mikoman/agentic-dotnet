@@ -2,6 +2,15 @@
 
 All notable changes to this project are documented here.
 
+## 1.4.0 - 2026-11-16
+
+- Added OpenCode integration. A link at `~/.config/opencode/AGENTS.md` now gives OpenCode the shared instructions. Without it, OpenCode 2.2.5 did not send them to the model.
+- Added an OpenCode config merge. It adds the Microsoft Learn MCP server and the official .NET skill directories to `opencode.json`. It keeps all other settings and provider keys. It lists only existing skill directories, because OpenCode 2.2.5 loads no skills when the first path is missing. Backups use mode 0600.
+- Added T3 Code support. T3 Code is a host with no configuration of its own. It uses the shared sources through its providers. Install prints its version and providers. Doctor checks the providers, their skill caches, and custom home paths. Doctor reads only non-secret fields.
+- Added a minimum OpenCode version (2.0.0) to `config/tools.json`. Doctor warns about older versions.
+- Added OpenCode and T3 Code adapter notes, tests, and release allowlist entries. Updated the documentation for seven harnesses and one host.
+- Fixed `bootstrap.sh` on macOS Bash 3.2. An empty option list stopped it with an unbound variable error.
+
 ## 1.3.1 - 2026-10-27
 
 - Removed six redundant Matt Pocock skills after reviewing overlap with J-Space and the shared workflows. Retained 18 specialist skills.

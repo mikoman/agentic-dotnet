@@ -25,7 +25,7 @@ Native marketplaces choose the available version. The reviewed version file is a
 
 For same-version Claude content drift, apply can reinstall the affected plugin through Claude's CLI. It keeps persistent plugin data and does not prune dependencies. A failed reinstall is reported. The prior official files remain in the backup.
 
-The official Cursor/Kilo cache is pinned to the reviewed commit. Install prepares that cache. Sync does not fetch upstream changes.
+The official Cursor, Kilo, and OpenCode cache is pinned to the reviewed commit. Install prepares that cache. Sync does not fetch upstream changes.
 
 ## Optional review tool
 
@@ -39,7 +39,7 @@ Run these checks from the central root:
 
 ```sh
 node scripts/validate-skills.js
-node --test tests/managed.test.js tests/omp-mcp-merge.test.js tests/sync.test.js
+node --test tests/managed.test.js tests/omp-mcp-merge.test.js tests/opencode-config-merge.test.js tests/sync.test.js tests/t3code.test.js
 node scripts/release-files.js
 python3 skills/j-space/scripts/verify_suite.py
 ```
@@ -48,7 +48,7 @@ Run the platform sync, install, and doctor scripts after configuration changes. 
 
 The skill validator checks this repository's metadata conventions, entry-file links, and eight explicit-only policies. It is not a general YAML validator. `--portable` reports unsupported extension fields. Do not remove invocation restrictions to make an export pass. Confirm equivalent destination support first.
 
-The isolated tests cover Cursor deployment, backups, local-edit preservation, release allowlists, command time limits, GitNexus version comparisons, custom Copilot homes, OMP MCP merging, repeated synchronization, and retired skill links. Retirement checks preserve unrelated links and regular skill directories. Windows CI exercises the PowerShell sync path. POSIX tests do not prove Windows junction behavior.
+The isolated tests cover Cursor deployment, backups, local-edit preservation, release allowlists, command time limits, GitNexus version comparisons, custom Copilot homes, OMP MCP merging, OpenCode config merging, T3 Code provider checks, repeated synchronization, and retired skill links. Retirement checks preserve unrelated links and regular skill directories. Windows CI exercises the PowerShell sync path. POSIX tests do not prove Windows junction behavior.
 
 Doctor distinguishes file configuration, native CLI status, and unverified runtime behavior. Its command timeout defaults to ten seconds. Set `AGENTIC_DOTNET_CHECK_TIMEOUT_MS` between 100 and 60000 when needed. Credentials are not inspected.
 

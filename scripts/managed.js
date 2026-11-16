@@ -26,6 +26,10 @@ function plugins(directory = root) {
   return [...new Set(names)];
 }
 
+function officialSkillsDirectory(name) {
+  return path.join(home, '.cache/agentic-dotnet/dotnet-skills/plugins', name, 'skills');
+}
+
 function run(command, args, timeout = 15000, options = {}) {
   const settings = { encoding: 'utf8', timeout, maxBuffer: 8 * 1024 * 1024, ...options };
   // Windows npm shims require a shell. Reject shell expansion in supplied values.
@@ -89,4 +93,4 @@ function treeDigest(directory) {
   return crypto.createHash('sha256').update(JSON.stringify(entries)).digest('hex');
 }
 
-module.exports = { root, home, copilotHome, plugins, run, stableVersionAtLeast, exists, samePath, files, digest, treeDigest };
+module.exports = { root, home, copilotHome, plugins, officialSkillsDirectory, run, stableVersionAtLeast, exists, samePath, files, digest, treeDigest };

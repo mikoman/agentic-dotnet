@@ -13,6 +13,9 @@ $RootDir = if ($env:AGENTIC_DOTNET_HOME) {
     [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 }
 $PluginConfig = Join-Path $RootDir 'config\plugins.yaml'
+$UserHome = [Environment]::GetFolderPath('UserProfile')
+if ($env:AGENTIC_DOTNET_USER_HOME) { $UserHome = $env:AGENTIC_DOTNET_USER_HOME }
+$OpenCodeDir = Join-Path $UserHome '.config\opencode'
 
 function Write-Note([string]$Message) {
     Write-Host "[install] $Message"
@@ -54,16 +57,37 @@ if ($WithOcr) {
     if ($LASTEXITCODE -ne 0) { throw 'OCR installation failed.' }
 }
 
+& node (Join-Path $RootDir 'scripts\t3code.js')
+switch ($LASTEXITCODE) {
+    0 { }
+    4 { Write-InstallWarning 'T3 Code is installed but has not started yet; open it once, then run the doctor' }
+    default { Write-InstallWarning 'T3 Code is not installed' }
+}
+
 if ($SkipPlugins) {
     Write-Note 'skipping plugin and MCP CLI installation by request'
     exit 0
 }
 
-if ((Test-Command 'cursor') -or (Test-Command 'cursor-agent')) {
+$cursorPresent = (Test-Command 'cursor') -or (Test-Command 'cursor-agent')
+if ($cursorPresent) {
     & node (Join-Path $RootDir 'scripts\official-cache.js')
     if ($LASTEXITCODE -ne 0) { throw 'Official Cursor source preparation failed.' }
     & node (Join-Path $RootDir 'scripts\cursor-adapter.js')
     if ($LASTEXITCODE -ne 0) { throw 'Official Cursor deployment failed.' }
+}
+
+if (Test-Path -LiteralPath $OpenCodeDir -PathType Container) {
+    if (-not $cursorPresent) {
+        & node (Join-Path $RootDir 'scripts\official-cache.js')
+        if ($LASTEXITCODE -ne 0) { Write-InstallWarning 'Official skill source preparation failed. OpenCode official skills are not wired.' }
+    }
+    # Sync ran before the official cache existed. Merge again so OpenCode lists its skill directories.
+    $BackupStamp = Get-Date -Format 'yyyy-MM-dd-HHmmss'
+    & node (Join-Path $RootDir 'scripts\opencode-config-merge.js') (Join-Path $OpenCodeDir 'opencode.json') (Join-Path $RootDir "backups\install-$BackupStamp")
+    if ($LASTEXITCODE -ne 0) { Write-InstallWarning 'OpenCode config merge failed' }
+} else {
+    Write-InstallWarning 'OpenCode config directory not present; its instructions, MCP, and official skills are not wired'
 }
 
 & node (Join-Path $RootDir 'scripts\install-native.js')

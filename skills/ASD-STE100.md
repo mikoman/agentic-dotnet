@@ -50,7 +50,7 @@ Start a fresh session in each installed harness. Check that it can load the skil
 
 The linter checks selected structural rules. It cannot prove factual accuracy or full ASD-STE100 compliance. The skill does not include the official ASD dictionary.
 
-Shared links prepare discovery for Codex, Claude Code, Copilot CLI, Cursor, and Kilo. They do not prove runtime use. See [platform limits](../PORTABLE_INSTALL.md#harness-behavior) for Windows Cursor/Kilo instruction support. Hosted agents need a separate supported distribution path.
+Shared links prepare discovery for Codex, Claude Code, Copilot CLI, Cursor, Kilo, OMP, and OpenCode. They do not prove runtime use. See [platform limits](../PORTABLE_INSTALL.md#harness-behavior) for Windows Cursor/Kilo instruction support. Hosted agents need a separate supported distribution path.
 
 ## Updates
 

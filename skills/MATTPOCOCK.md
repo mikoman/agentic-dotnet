@@ -60,7 +60,7 @@ Enforcement depends on the harness.
 
 ## Central installation and use
 
-All six local harnesses share these files. Codex, Copilot CLI, Cursor, Kilo, and OMP use `~/.agents/skills`. Claude Code uses `~/.claude/skills`.
+All seven local harnesses share these files. Codex, Copilot CLI, Cursor, Kilo, OMP, and OpenCode use `~/.agents/skills`. Claude Code uses `~/.claude/skills`.
 Both sync scripts link each complete canonical directory. This source record sits outside the individual skill directories and is not a discoverable skill.
 
 Request a retained skill by name, such as `$grilling` or `$tdd` in Codex. Add `domain-modeling` when an interview needs glossary or ADR updates.
