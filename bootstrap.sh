@@ -87,7 +87,7 @@ chmod +x "${TARGET_DIR}/bootstrap.sh" "${TARGET_DIR}"/scripts/*.sh
 
 install_arguments=()
 if [ "$SKIP_PLUGINS" -eq 1 ]; then install_arguments+=(--skip-plugins); fi
-AGENTIC_DOTNET_HOME="$TARGET_DIR" AGENTIC_DOTNET_REPLACE_EXISTING="$REPLACE_EXISTING" "${TARGET_DIR}/scripts/install.sh" "${install_arguments[@]}"
+AGENTIC_DOTNET_HOME="$TARGET_DIR" AGENTIC_DOTNET_REPLACE_EXISTING="$REPLACE_EXISTING" "${TARGET_DIR}/scripts/install.sh" ${install_arguments[@]+"${install_arguments[@]}"}
 
 if [ "$NO_VERIFY" -eq 0 ]; then
   AGENTIC_DOTNET_HOME="$TARGET_DIR" "${TARGET_DIR}/scripts/doctor.sh"
